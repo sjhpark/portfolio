@@ -1,0 +1,82 @@
+---
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+---
+<ProjectLayout title="Q&A Chatbot via RAG">
+  <article class="project">
+    <h1>Q&A Chatbot with LLMs via Retrieval Augmented Generation</h1>
+    <div class="tags">
+      <span>LLM</span><span>RAG</span><span>Vector DB</span><span>NLP</span>
+    </div>
+
+    <section>
+      <h2>Motivation</h2>
+      <p>Q&A systems with large language models (LLMs) have shown remarkable performance in generating human-like responses. However, LLMs often suffer from hallucination and generate plausible but incorrect information.</p>
+    </section>
+
+    <section>
+      <h2>Introduction</h2>
+      <div class="img-wrap">
+        <img src="/images/RAG/Q&A_pipeline.png" alt="RAG Pipeline" />
+      </div>
+      <p>To address this issue, we developed a Q&A chatbot system that leverages retrieval-augmented generation (RAG). RAG allows users to vectorize and store documents (PDF format) in a grounded database, and conducts similarity and semantic search to retrieve the most relevant information when a user asks a question. The retrieved information is then converted into a human-like response by the LLM.</p>
+    </section>
+
+    <section>
+      <h2>Research Challenges</h2>
+      <ul>
+        <li>Choosing an LLM for the human-like text generation component.</li>
+        <li>Selecting an embedding model to vectorize the documents.</li>
+        <li>Generalizing the retrieval system to handle different document types.</li>
+        <li>Further mitigating hallucination in the LLM.</li>
+        <li>Finding evaluation metrics for retrieval system performance.</li>
+        <li>Fine-tuning the LLM if performance is not satisfactory.</li>
+        <li>Optimizing inference time and memory usage.</li>
+        <li>Developing a user-friendly web application interface.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Web Application</h2>
+      <p>We developed a web application that allows users to upload PDF documents and ask questions. The application focuses on refining inference time, memory usage, and user interface.</p>
+      <div class="img-wrap">
+        <img src="/images/RAG/RAG_App.png" alt="RAG Web Application" />
+      </div>
+    </section>
+  </article>
+</ProjectLayout>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 2.5rem; }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags span {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  section { display: flex; flex-direction: column; gap: 1rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  p { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; }
+  ul { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  .img-wrap img { max-width: 100%; height: auto; object-fit: contain; }
+</style>

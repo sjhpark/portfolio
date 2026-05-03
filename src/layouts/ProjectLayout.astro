@@ -1,0 +1,74 @@
+---
+interface Props { title: string; }
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} — Sam Park</title>
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="back">← Home</a>
+      <a href="/projects" class="projects-link">All Projects</a>
+    </nav>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>© 2025 Jong Hoon (Sam) Park &nbsp;·&nbsp;
+        <a href="https://github.com/sjhpark" target="_blank">GitHub</a> &nbsp;·&nbsp;
+        <a href="https://www.linkedin.com/in/jonghoon-park" target="_blank">LinkedIn</a>
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    background: #050505;
+    color: #fff;
+    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    overflow-x: hidden;
+  }
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 8vw;
+    background: rgba(5,5,5,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: #fff; }
+  nav .back { color: rgba(255,255,255,0.8); }
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 8vw 100px;
+  }
+  footer {
+    text-align: center;
+    padding: 32px 8vw;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.8rem;
+  }
+  footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+  footer a:hover { color: #fff; }
+</style>

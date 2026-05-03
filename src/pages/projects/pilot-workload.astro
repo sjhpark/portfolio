@@ -1,0 +1,101 @@
+---
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+---
+<ProjectLayout title="Pilot Workload Estimation">
+  <article class="project">
+    <h1>Pilot Workload Estimation via Multimodal Machine Learning</h1>
+    <div class="tags">
+      <span>Multimodal ML</span><span>Signal Processing</span><span>PyTorch</span><span>eVTOL</span>
+    </div>
+
+    <section>
+      <h2>Motivation</h2>
+      <p>With the growing focus on urban air mobility, the development of next-generation air mobility systems has become a paramount area of research. This project is motivated by a semi-autonomous approach, where pilots remain within the aircraft, supported by advanced co-pilot systems to alleviate their workload during flight operations. To enhance adaptive co-pilot systems, a key aspect is identifying instances when pilots experience high workloads. One way to assess pilots' mental and physical workloads during flight operations is to use various biometric data — such as heart rate, eye gaze, GSR, and response time — as inputs to a statistical estimator.</p>
+    </section>
+
+    <section>
+      <h2>Introduction</h2>
+      <p>Currently involved in the development of a multimodal machine learning model aimed at estimating eVTOL (electric Vertical Take-off & Landing) aircraft pilot workload during various flight operations. As a member of a team of researchers and engineers, we have been collecting multimodal biometric data (including Heart Rate, Eye Gaze, GSR, etc.) from pilots engaged in simulated flights with a VTOL aircraft. Our data collection process includes obtaining ground truth labels for pilot workload gathered through pilots' self-evaluation using the NASA Task Load Index (TLX) questionnaire.</p>
+    </section>
+
+    <section>
+      <h2>Simulated Flight</h2>
+      <p>One of our objectives is to measure pilots' mental and physical workload during flight maneuvers of VTOLs, the next generation of air mobility. Since this mode of air transportation has barely been commercialized, collecting biometric data while flying inside actual VTOLs is nearly impossible. Furthermore, this could pose a safety hazard, as physiological sensors attached to pilots can be sources of distraction. For this reason, we collected data from pilots while they were flying inside a simulated environment using Xplane12, a flight simulation game developed by Laminar Research.</p>
+      <div class="img-row">
+        <div class="img-wrap"><img src="/images/pilot_workload/sim_setup.png" alt="Simulation Setup" /></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Data & Sensors</h2>
+      <p>For a more accurate estimation of pilot workload, we chose to collect seven different modalities of physiological data. These include heart rate, galvanic skin response, eye gaze, response time, body pose, brain activity, and grip force. Our experiment setup is inspired by the work presented in <em>Objective Measures of Cognitive Load Using Deep Multi-Modal Learning: A Use-Case in Aviation (2021)</em>.</p>
+
+      <h3>Heart Rate</h3>
+      <p>Collected using a wristband heart rate monitor.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/e4.png" alt="Heart Rate Monitor" /></div>
+
+      <h3>Galvanic Skin Response</h3>
+      <p>Collected by wrapping electropads around the fingers of the participants, connected to a wireless GSR sensor.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/gsr.png" alt="GSR Sensor" /></div>
+
+      <h3>Eye Gaze</h3>
+      <p>Collected using eye-tracking glasses.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/eyetracking.png" alt="Eye Tracking" /></div>
+
+      <h3>Response Time</h3>
+      <p>Collected approximately every 15 seconds by activating a vibration motor attached to the participant's collarbone. Participants pressed a clicker whenever they felt the vibration.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/response_time_clicker.png" alt="Response Time Clicker" /></div>
+
+      <h3>Body Pose</h3>
+      <p>Collected upper body joint poses in 3D spatial coordinates (x, y, z) using an Xbox Kinect camera.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/kinect.png" alt="Kinect" /></div>
+
+      <h3>Brain Activity</h3>
+      <p>Collected brain activity using an fNIR (Functional near-infrared spectroscopy) sensor that emits non-invasive near-infrared light to estimate cortical hemodynamic activity.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/fnir.png" alt="fNIR Sensor" /></div>
+
+      <h3>Grip Force</h3>
+      <p>Collected grip force during simulated flight using two individual force-sensing resistor strips attached to the joystick.</p>
+      <div class="img-wrap small"><img src="/images/pilot_workload/joystick.png" alt="Joystick" /></div>
+    </section>
+  </article>
+</ProjectLayout>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 2.5rem; }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags span {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  section { display: flex; flex-direction: column; gap: 1.2rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  h3 { font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.75); margin-top: 0.5rem; }
+  p { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; }
+  em { color: rgba(255,255,255,0.5); }
+  .img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  .img-wrap img { max-width: 100%; height: auto; object-fit: contain; }
+  .img-wrap.small { max-width: 320px; }
+  .img-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+</style>

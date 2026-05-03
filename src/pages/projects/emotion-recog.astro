@@ -1,0 +1,87 @@
+---
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+---
+<ProjectLayout title="Facial Emotion Recognition">
+  <article class="project">
+    <h1>Human Facial Emotion Recognition & Classification</h1>
+    <div class="tags">
+      <span>CNN</span><span>Computer Vision</span><span>AffectNet</span><span>Classification</span>
+    </div>
+
+    <section>
+      <h2>Motivation</h2>
+      <p>Facial emotion recognition (FER) has diverse applications in healthcare, human interactions, and customer satisfaction, playing a crucial role in predicting psychological states during social interactions. Recognizing emotions from facial expressions holds great potential for understanding consumer mental states and improving user satisfaction. We employed machine learning and computer vision techniques to detect and classify human facial emotion expressions.</p>
+    </section>
+
+    <section>
+      <h2>Introduction</h2>
+      <p>This was my very first machine learning team project. As a member of a team of five, I was responsible for the entire project pipeline, including development, training, evaluation, and demonstrating the trained model. We trained a baseline CNN with the mini version of AffectNet benchmark and achieved around 70% accuracy on predicting emotions per facial expressions.</p>
+    </section>
+
+    <section>
+      <h2>Model</h2>
+      <p>We built a baseline Convolutional Neural Network (CNN) model to identify a person's emotion based on facial expressions. The project aims to leverage existing machine learning and computer vision approaches to train a model capable of distinguishing and classifying various facial emotion expressions (e.g., 'happy,' 'sad,' 'angry') from given images of human faces. The model was trained and tested using the mini version of the AffectNet benchmark image dataset.</p>
+      <div class="img-wrap"><img src="/images/emotion_recog/CNN.png" alt="CNN Architecture" /></div>
+    </section>
+
+    <section>
+      <h2>Dataset</h2>
+      <p>We used the mini version of AffectNet, a benchmark human facial expression dataset. This mini version, comprising 291,651 images, focuses on eight labels. Released since March 2021, it includes manually annotated images with labels ranging from 0 to 7. The images are cropped and resized to 224×224 pixels (RGB). The database contains 8 expression labels, Arousal/Valence values, and facial landmark points for the training and validation sets.</p>
+      <div class="img-wrap"><img src="/images/emotion_recog/labels.png" alt="Label Distribution" /></div>
+    </section>
+
+    <section>
+      <h2>Training & Evaluation</h2>
+      <p>We trained our CNN model for approximately 50 epochs. At that time, we were not familiar with techniques like regularization to prevent overfitting. Despite this lack of knowledge, we managed to achieve around 70% validation accuracy, even though the model was overfitting with a training accuracy of 75%. If I were to redo this project, I would implement regularization techniques such as L1/L2 regularization, batch normalization, dropout, drop block, and early stopping. Furthermore, I would employ pixel-wise and geometric image augmentation to introduce variance to the training data.</p>
+      <div class="img-wrap"><img src="/images/emotion_recog/loss_and_acc.png" alt="Loss and Accuracy" /></div>
+    </section>
+
+    <section>
+      <h2>Results</h2>
+      <div class="img-wrap"><img src="/images/emotion_recog/baseCNN_results.png" alt="Base CNN Results" /></div>
+    </section>
+
+    <section>
+      <h2>Analysis</h2>
+      <p>We conducted a comprehensive analysis of our trained model, computing a confusion matrix along with precision, recall, and F1 scores. Upon revisiting the label distribution in the dataset, we observed that a few labels (Neutral and Happy) dominated over 70% of the entire dataset. This led to confusion between contempt and happy emotions. For future work, implementing regularization and data augmentation methods, along with a more sophisticated model architecture utilizing residual blocks or a U-shape network, could enhance feature extraction from facial images.</p>
+      <div class="img-wrap"><img src="/images/emotion_recog/confusion.png" alt="Confusion Matrix" /></div>
+      <div class="img-wrap"><img src="/images/emotion_recog/confusion_count_per_class.png" alt="Confusion Count Per Class" /></div>
+      <div class="img-wrap"><img src="/images/emotion_recog/f1.png" alt="F1 Scores" /></div>
+    </section>
+  </article>
+</ProjectLayout>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 2.5rem; }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags span {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  section { display: flex; flex-direction: column; gap: 1.2rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  p { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; }
+  .img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  .img-wrap img { max-width: 100%; height: auto; object-fit: contain; }
+</style>

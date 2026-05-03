@@ -1,0 +1,156 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const projects = [
+  {
+    slug: 'rag',
+    title: 'Q&A Chatbot via Retrieval Augmented Generation',
+    desc: 'Built a RAG-based Q&A system to mitigate LLM hallucination. Users upload PDF documents; the pipeline vectorizes them into a grounded database and performs semantic search to retrieve relevant context before generating responses with an LLM.',
+    image: '/images/RAG/Q&A_pipeline.png',
+    tags: ['LLM', 'RAG', 'Vector DB', 'NLP'],
+  },
+  {
+    slug: 'pilot-workload',
+    title: 'Pilot Workload Estimation via Multimodal ML',
+    desc: 'Multimodal ML model estimating eVTOL pilot stress levels from 7 biometric modalities — heart rate, eye gaze, GSR, brain activity (fNIR), body pose, grip force, and response time. Ground truth collected via NASA Task Load Index (TLX).',
+    image: '/images/pilot_workload/sim_setup.png',
+    tags: ['Multimodal ML', 'Signal Processing', 'PyTorch', 'eVTOL'],
+  },
+  {
+    slug: 'on-device-ml',
+    title: 'Large Generative Model On-Device Deployment & Optimization',
+    desc: 'Compressed a 72M-parameter virtual garment try-on model onto NVIDIA Jetson Nano 4GB via quantization, structured/unstructured pruning, and knowledge distillation. Conducted filter-wise sensitivity analysis to identify key-player filters.',
+    image: '/images/on_device_ml/jetson1.png',
+    tags: ['Model Compression', 'Pruning', 'Knowledge Distillation', 'Jetson Nano'],
+  },
+  {
+    slug: 'aircraft-traj-pred',
+    title: 'Motion Prediction in Airports via Heterogeneous Map Representations',
+    desc: 'Studied rasterized vs. graph-based airport map representations for aircraft motion forecasting using a transformer-based multi-modal joint prediction model (GPT-2 encoder + GMM header). Trained on 200 days of FAA SWIM trajectory data.',
+    image: '/images/aircraft_traj_pred/pipeline.png',
+    tags: ['Motion Forecasting', 'Transformer', 'Graph Neural Net', 'Aviation'],
+  },
+  {
+    slug: 'emotion-recog',
+    title: 'Human Facial Emotion Recognition & Classification',
+    desc: 'Trained a CNN classifier on the AffectNet benchmark (291K images, 8 emotion labels) to recognize facial expressions. Achieved ~70% validation accuracy. Analyzed class imbalance via confusion matrix, precision, recall, and F1 scores.',
+    image: '/images/emotion_recog/baseCNN_results.png',
+    tags: ['CNN', 'Computer Vision', 'AffectNet', 'Classification'],
+  },
+];
+---
+<Layout>
+  <section id="projects-page">
+    <div class="page-header">
+      <a href="/" class="back-link">← Back</a>
+      <h1>Projects</h1>
+    </div>
+    <div class="projects-list">
+      {projects.map(p => (
+        <a href={`/projects/${p.slug}`} class="project-card">
+          <div class="card-img">
+            <img src={p.image} alt={p.title} />
+          </div>
+          <div class="card-info">
+            <h2>{p.title}</h2>
+            <p>{p.desc}</p>
+            <div class="tags">
+              {p.tags.map(t => <span>{t}</span>)}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  #projects-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 8vw 120px;
+  }
+  .page-header {
+    margin-bottom: 3rem;
+  }
+  .back-link {
+    display: inline-block;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.2rem;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: #fff; }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .project-card {
+    display: flex;
+    gap: 2rem;
+    background: #0e0e0e;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .project-card:hover {
+    border-color: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+  .card-img {
+    flex-shrink: 0;
+    width: 200px;
+    height: 140px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111;
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .card-info h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .card-info p {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+  .tags span {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  @media (max-width: 600px) {
+    .project-card { flex-direction: column; }
+    .card-img { width: 100%; height: 180px; }
+  }
+</style>

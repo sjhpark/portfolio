@@ -1,0 +1,97 @@
+---
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+---
+<ProjectLayout title="Motion Prediction in Airports">
+  <article class="project">
+    <h1>Motion Prediction in Airports using Heterogeneous Map Representations</h1>
+    <div class="tags">
+      <span>Motion Forecasting</span><span>Transformer</span><span>Graph Neural Net</span><span>Aviation</span>
+    </div>
+
+    <section>
+      <h2>Motivation</h2>
+      <p>Ensuring safety in airport ground operations is crucial to prevent catastrophic collisions, known as incursions. Human monitoring is currently relied upon to identify and correct potential risks. Motion forecasting models, underexplored in aviation, offer promise in automating the detection of safety-critical situations. This project focuses on studying the impact of different map representations on these models for enhancing situational awareness in aviation safety systems.</p>
+    </section>
+
+    <section>
+      <h2>Data</h2>
+      <p>The trajectory data, collected through the Federal Aviation Administration's (FAA) System Wide Information Management (SWIM) platform, spans 200 days of movement between Seattle-Tacoma Airport (KSEA) and Newark Airport (KEWR).</p>
+      <div class="img-row">
+        <div class="img-wrap small"><img src="/images/aircraft_traj_pred/ksea_vector.png" alt="KSEA Vector Map" /></div>
+        <div class="img-wrap small"><img src="/images/aircraft_traj_pred/kewr_vector.png" alt="KEWR Vector Map" /></div>
+      </div>
+      <p>Specifically, we utilized the SWIM Terminal Data Distribution System (STDDS) for trajectory data, collecting information about aircraft and operational vehicles from 6 FAA systems — including Airport Surface Detection Equipment Model X, Airport Surface Surveillance Capability, Standard Terminal Automation Replacement System, Runway Visual Range, Electronic Flight Strip Transfer System, and Tower Data Link Services. The data spans 200 days from December 1 to June 19, 2023, providing details on altitude, speed, heading, vehicle type, and 2D geographical coordinates, grouped into 30-second-long scenarios.</p>
+    </section>
+
+    <section>
+      <h2>Airport Map Representations</h2>
+      <p>We processed the airport maps into two different representations: (1) rasterized images of HD maps and (2) graph-based vectorized maps, with semantic information imbued in their nodes and edges.</p>
+
+      <h3>Raster Representation</h3>
+      <p>We viewed the polygons formed by map elements as shapes on an image. To retain semantic information, a specific color is assigned to each semantic class.</p>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/semantic_map.png" alt="Semantic Map" /></div>
+
+      <h3>Graph Representation</h3>
+      <p>We processed the airport maps by vectorizing them: (a) the original graph before processing, (b) remaining centerlines after categorizing each node into Runway, Taxiway, Hold-short Line, or Exit, (c) the graph after connecting each runway and eliminating redundant nodes, (d) the vectorization process of the graph.</p>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/vectorization.png" alt="Vectorization Process" /></div>
+    </section>
+
+    <section>
+      <h2>Model & Pipeline</h2>
+      <p>The motion forecasting model architecture adopts a multi-modal joint prediction approach, utilizing an agent-centric representation for trajectories and local context patches. The agent encoder incorporates a linear layer, while the context encoder varies based on the chosen map representation. In this project, we compared CNN-based and MLP-based encoders with and without attention layers for rasterized and graph representations. A GPT-2 style causal encoder performs masked attention over trajectories. Lastly, a Gaussian Mixture Model (GMM) serves as the prediction header, representing future trajectories as a probabilistic distribution for each time step.</p>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/pipeline.png" alt="Model Pipeline" /></div>
+    </section>
+
+    <section>
+      <h2>Evaluation</h2>
+      <p>We assessed motion forecasting models by inputting historical aircraft trajectories and corresponding map patches in both representations. In both cases, raster-based context slightly outperforms the vector-based context. In KSEA, raster-based context has a 0.9 lower ADE and a 3.07 lower FDE than vector-based. In KEWR, ADE differs by 0.98 and FDE by 4.42. Despite the scale of aircraft, these differences are relatively low, suggesting that both context encoding methods are learning similar features from the provided information.</p>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/ADE_FDE.png" alt="ADE FDE Table" /></div>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/raster_swim_grid.png" alt="Raster SWIM Grid" /></div>
+      <div class="img-wrap"><img src="/images/aircraft_traj_pred/vector_swim_grid.png" alt="Vector SWIM Grid" /></div>
+    </section>
+
+    <section>
+      <h2>Acknowledgement</h2>
+      <p class="acknowledgement">I would like to express my sincere gratitude to Pablo Ortega-Kral for his substantial contributions to this project. Pablo played a pivotal role in the execution of the research, including the primary work and creation of figures presented in this project. His dedication and expertise significantly enriched the outcome of this study.</p>
+    </section>
+  </article>
+</ProjectLayout>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 2.5rem; }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags span {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  section { display: flex; flex-direction: column; gap: 1.2rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  h3 { font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.75); margin-top: 0.5rem; }
+  p { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; }
+  .acknowledgement { color: rgba(255,255,255,0.45); font-style: italic; }
+  .img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  .img-wrap img { max-width: 100%; height: auto; object-fit: contain; }
+  .img-wrap.small { max-width: 320px; }
+  .img-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+</style>

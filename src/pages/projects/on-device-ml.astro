@@ -1,0 +1,115 @@
+---
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+---
+<ProjectLayout title="On-Device ML Deployment">
+  <article class="project">
+    <h1>Large Generative Model On-Device Deployment & Optimization</h1>
+    <div class="tags">
+      <span>Model Compression</span><span>Pruning</span><span>Knowledge Distillation</span><span>Jetson Nano</span>
+    </div>
+
+    <section>
+      <h2>Motivation</h2>
+      <p>Convolution-based and language-based models have made significant performance strides in the last decade. Despite these advancements, the rapid growth in model complexity and size has outpaced the progress in AI deployment technologies, necessitating increased attention to model compression for efficient deployment on smaller devices. With a focus on deploying a large convolution-based model for virtual garment warping on a small device, this project introduces post-training compression methods aimed at maintaining original performance while enhancing efficiency.</p>
+    </section>
+
+    <section>
+      <h2>Introduction</h2>
+      <p>As a member of a team of five, I was responsible for compressing a large generative model (72 million parameters) for a virtual garment try-on system — based on the model proposed by <em>Parser-Free Virtual Try-on via Distilling Appearance Flows (CVPR 2021)</em> — onto an NVIDIA Jetson Nano 4GB. I optimized model efficiency through quantization, pruning, and knowledge distillation, and conducted sensitivity analysis to evaluate each convolution channel and layer concerning compression techniques.</p>
+      <div class="img-row">
+        <div class="img-wrap small"><img src="/images/on_device_ml/jetson1.png" alt="Jetson Nano" /></div>
+        <div class="img-wrap small"><img src="/images/on_device_ml/jetson_run.png" alt="Jetson Running" /></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Model</h2>
+      <p>The model chosen for this project is Parser-Free Appearance Flow Network (PFAFN). This model has over 70 million parameters and aims to warp input clothing and person images to output an image of the person wearing the clothing. The model comprises two modules: a generative model (43M parameters) and an appearance flow warping model (29M parameters).</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/model_architecture.png" alt="Model Architecture" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/AFWM_architecture.png" alt="AFWM Architecture" /></div>
+    </section>
+
+    <section>
+      <h2>Data</h2>
+      <p>The training data is the clothing image and the image of a person wearing the clothes. Parser-based network PB-AFN randomly selects a different clothing image to synthesize a fake image as the tutor. The tutor output and the clothing image serve as inputs to train the parser-free network PF-AFN, where the generated student output is directly supervised by the real image.</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/dataset.png" alt="Dataset" /></div>
+    </section>
+
+    <section>
+      <h2>Pruning — Generative Model</h2>
+      <p>We selectively reduced or "silenced" the activity of each block via structured pruning to observe how output quality changes and identify which aspects of the output are most affected when different levels of the system are less active.</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/gen_unstructured_pruning_decoder.jpg" alt="Unstructured Pruning Decoder" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/gen_unstructured_pruning_encoder.jpg" alt="Unstructured Pruning Encoder" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/gen_structured_pruning_decoder.jpg" alt="Structured Pruning Decoder" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/gen_structured_pruning_encoder.jpg" alt="Structured Pruning Encoder" /></div>
+    </section>
+
+    <section>
+      <h2>Pruning — Warping Model</h2>
+      <p>I performed a filter-wise structured pruning sensitivity analysis on AFWM's human condition feature encoder and clothing image feature encoder. I pruned the first 64 filters per layer, systematically evaluating one filter at a time. Through this analysis, I concluded that mid layers in the encoders are the least sensitive to pruning, while initial layers are the most sensitive as they capture the highest-level global features. I propose that carefully devised filter-wise pruning targeting non-key-player filters could result in model compression without compromising performance.</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/AFWM_filter_pruning_MSE.png" alt="AFWM Filter Pruning MSE" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/AFWM_filter_pruning_SSIM.png" alt="AFWM Filter Pruning SSIM" /></div>
+    </section>
+
+    <section>
+      <h2>Knowledge Distillation</h2>
+      <p>We compressed our generative model and warp model separately by reducing the number of channels within their respective convolution layers, then fine-tuned the compressed student model using output signals from the original teacher model via a custom loss function.</p>
+
+      <h3>Generative Model Distillation</h3>
+      <p>We conducted tests with ngf (number of generative filters) values ranging from 2 to 64 — the original model used ngf=64. We then utilized a custom loss function for fine-tuning the compressed student model.</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_gen_output_seen.png" alt="Distilled Gen Output (seen)" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_gen_output_unseen.png" alt="Distilled Gen Output (unseen)" /></div>
+
+      <h3>Warping Model Distillation</h3>
+      <p>I compressed the warping model (29M parameters) by reducing the number of channels in its convolution layers, modifying the configuration from [64, 128, 256, 256, 256] to alternative combinations, and evaluating each against performance benchmarks.</p>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_warp_compare_1.png" alt="Warp Compare 1" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_warp_compare_2.png" alt="Warp Compare 2" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_warp_compare_3.png" alt="Warp Compare 3" /></div>
+    </section>
+
+    <section>
+      <h2>Distillation Performance</h2>
+      <div class="img-wrap"><img src="/images/on_device_ml/distililed_gen_performance.png" alt="Gen Distillation Performance" /></div>
+      <div class="img-wrap"><img src="/images/on_device_ml/distilled_gen_benchmark.png" alt="Gen Distillation Benchmark" /></div>
+    </section>
+  </article>
+</ProjectLayout>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 2.5rem; }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags span {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+  }
+  section { display: flex; flex-direction: column; gap: 1.2rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  h3 { font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.75); margin-top: 0.5rem; }
+  p { color: rgba(255,255,255,0.7); line-height: 1.75; font-size: 0.95rem; }
+  em { color: rgba(255,255,255,0.5); }
+  .img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  .img-wrap img { max-width: 100%; height: auto; object-fit: contain; }
+  .img-wrap.small { max-width: 280px; }
+  .img-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+</style>
