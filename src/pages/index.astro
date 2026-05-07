@@ -9,22 +9,23 @@ import Layout from '../layouts/Layout.astro';
 		<a href="/playful">Playful</a>
 	</nav>
 
-	<!-- MLE Hero: wheel cycles images, then scrolls to About -->
 	<section id="hero">
+		<canvas id="ascii-canvas"></canvas>
 		<img id="bg-img" src="/images/aggie.png" alt="" />
 		<h1 id="hero-title">
 			<span class="title-line">Hi, I'm</span>
 			<span class="title-line" id="line-ml"><span style="color:#000">Machine Learning</span></span>
 			<span class="title-line">Engineer</span>
 		</h1>
-		<canvas id="mle-canvas"></canvas>
-		<p id="drag-hint">← drag to explore angles →</p>
+		<div id="canvas-wrap">
+			<canvas id="mle-canvas"></canvas>
+			<p id="drag-hint">← drag to explore angles →</p>
+		</div>
 	</section>
 
 </Layout>
 
 <style>
-	/* --- Hero / MLE gallery --- */
 	#hero {
 		height: 100vh;
 		display: flex;
@@ -33,6 +34,28 @@ import Layout from '../layouts/Layout.astro';
 		background: #000;
 		overflow: hidden;
 		position: relative;
+	}
+	/* Full-screen ASCII background */
+	#ascii-canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+		pointer-events: none;
+	}
+	#bg-img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		filter: blur(20px);
+		opacity: 0;
+		transition: opacity 0.6s ease;
+		z-index: 1;
+		pointer-events: none;
+		transform: scale(1.05);
 	}
 	#hero-title {
 		position: absolute;
@@ -48,7 +71,7 @@ import Layout from '../layouts/Layout.astro';
 		transform-origin: top left;
 		transition: opacity 0.4s ease, transform 0.4s ease;
 		pointer-events: none;
-		z-index: 2;
+		z-index: 3;
 		white-space: nowrap;
 	}
 	.title-line { display: block; }
@@ -58,33 +81,27 @@ import Layout from '../layouts/Layout.astro';
 		opacity: 0;
 		transition: max-height 0.4s ease, opacity 0.4s ease;
 	}
-	#bg-img {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		filter: blur(20px);
-		opacity: 0;
-		transition: opacity 0.6s ease;
-		z-index: 0;
-		pointer-events: none;
-		transform: scale(1.05); /* prevent blur edge artifacts */
+	#canvas-wrap {
+		display: block;
+		position: relative;
+		z-index: 2;
+		line-height: 0;
+		border-radius: 8px;
+		box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(22,235,235,0.06);
+		transition: transform 0.45s ease;
+		transform-origin: center;
 	}
 	#mle-canvas {
 		display: block;
 		cursor: grab;
 		border-radius: 8px;
-		box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(22,235,235,0.06);
-		transition: transform 0.45s ease;
-		transform-origin: center;
-		z-index: 1;
-		position: relative;
 	}
 	#drag-hint {
 		position: absolute;
-		bottom: 2.5rem;
+		top: 100%;
+		left: 0;
 		width: 100%;
+		margin-top: 0.75rem;
 		text-align: center;
 		pointer-events: none;
 		color: rgba(255,255,255,0.6);
@@ -93,7 +110,11 @@ import Layout from '../layouts/Layout.astro';
 		text-transform: uppercase;
 		opacity: 0;
 		transition: opacity 0.5s ease;
-		z-index: 3;
+		z-index: 4;
+	}
+	:global(.dodge-char) {
+		display: inline-block;
+		transition: transform 0.09s ease-out;
 	}
 	#drag-hint.flashing {
 		animation: hint-flash 1.2s ease-in-out infinite;
@@ -102,34 +123,6 @@ import Layout from '../layouts/Layout.astro';
 		0%, 100% { opacity: 0.15; }
 		50%       { opacity: 0.9; }
 	}
-	#hero-ui {
-		position: absolute;
-		bottom: 2.5rem;
-		width: 100%;
-		text-align: center;
-		pointer-events: none;
-	}
-	.hero-scroll-hint {
-		color: rgba(255,255,255,0.35);
-		font-size: 0.72rem;
-		letter-spacing: 0.15em;
-		text-transform: uppercase;
-		margin-bottom: 1rem;
-	}
-	#hero-dots {
-		display: flex;
-		justify-content: center;
-		gap: 8px;
-	}
-	.hero-dot {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: rgba(255,255,255,0.2);
-		transition: background 0.3s;
-	}
-	.hero-dot.active { background: #16ebeb; }
-
 	#top-nav {
 		position: fixed;
 		top: 0;
@@ -148,7 +141,6 @@ import Layout from '../layouts/Layout.astro';
 		transition: color 0.2s;
 	}
 	#top-nav a:hover { color: #fff; }
-	/* --- Responsive --- */
 	@media (max-width: 700px) {
 		#hero-title { font-size: 2.2rem; }
 	}
@@ -159,22 +151,24 @@ import Layout from '../layouts/Layout.astro';
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 
-  const ZOOM_STEPS     = 6;
+  const ZOOM_STEPS      = 6;
   const IMG_SCALE_STEPS = 4;
   const TEXT_FULL_STEP  = 5;
-  const DRAG_PER_STEP   = 80; // px of horizontal drag per angle step
+  const DRAG_PER_STEP   = 80;
 
-  const canvas   = document.getElementById('mle-canvas') as HTMLCanvasElement;
-  const titleEl  = document.getElementById('hero-title')!;
-  const bgImg    = document.getElementById('bg-img') as HTMLImageElement;
-  const lineMl   = document.getElementById('line-ml')!;
-  const dragHint = document.getElementById('drag-hint')!;
+  const canvas     = document.getElementById('mle-canvas') as HTMLCanvasElement;
+  const canvasWrap = document.getElementById('canvas-wrap') as HTMLDivElement;
+  const titleEl    = document.getElementById('hero-title')!;
+  const bgImg      = document.getElementById('bg-img') as HTMLImageElement;
+  const lineMl     = document.getElementById('line-ml')!;
+  const dragHint   = document.getElementById('drag-hint')!;
+  const hero       = document.getElementById('hero')!;
 
   // ── Audio ─────────────────────────────────────────────────────────────────
-  const bgMusic   = new Audio('/sounds/morning_breeze.wav');
-  bgMusic.loop    = true;
-  bgMusic.volume  = 0.2;
-  const rippleSfx = new Audio('/sounds/water_droplet.wav');
+  const bgMusic    = new Audio('/sounds/morning_breeze.wav');
+  bgMusic.loop     = true;
+  bgMusic.volume   = 0.2;
+  const rippleSfx  = new Audio('/sounds/water.wav');
   rippleSfx.volume = 0.5;
 
   let audioStarted = false;
@@ -187,7 +181,7 @@ import Layout from '../layouts/Layout.astro';
     bgMusic.play().catch(() => {});
   }
 
-  // ── Angle images (angle3 = front view is default) ─────────────────────────
+  // ── Angle images ──────────────────────────────────────────────────────────
   const ANGLE_SRCS = [
     '/images/aggie.png',
     '/images/aggie_angle1.png',
@@ -199,7 +193,7 @@ import Layout from '../layouts/Layout.astro';
     const i = new Image(); i.src = src; return i;
   });
 
-  let angleIndex     = 0; // start with aggie.png
+  let angleIndex     = 0;
   let isDragging     = false;
   let dragStartX     = 0;
   let dragStartAngle = 0;
@@ -226,6 +220,302 @@ import Layout from '../layouts/Layout.astro';
   let mx = -1, my = -1, pActive = false;
   const DAMP = 0.985;
 
+  // ── ASCII background ───────────────────────────────────────────────────────
+  const asciiCanvas = document.getElementById('ascii-canvas') as HTMLCanvasElement;
+  const CHARSET    = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*+-=<>?|/\\;:';
+  const CELL       = 16;
+  const A_N        = 120;    // number of rain drops
+  const A_DECAY    = 0.80;   // trail brightness decay per frame
+  const GRAVITY    = 0.35;   // downward acceleration (px/frame²)
+  const MAX_VY     = 64;     // terminal velocity (px/frame)
+  const HORIZ_DAMP = 0.94;   // horizontal velocity damping (after collisions)
+
+  let asciiCtx: CanvasRenderingContext2D | null = null;
+  let aCols = 0, aRows = 0;
+  let aField = new Float32Array(0);
+  let aMx = -1, aMy = -1; // mouse position in screen px
+
+  type AP = { x: number; y: number; vx: number; vy: number };
+  const aParticles: AP[] = [];
+
+
+  // ── Pixel-mask text collision ──────────────────────────────────────────────
+  let maskCtx: CanvasRenderingContext2D | null = null;
+  let maskData: Uint8ClampedArray | null = null;
+  let maskW = 0, maskH = 0;
+
+  // How many px to inflate glyph outlines — fills gaps between letters and
+  // counters inside them so particles treat each word as one solid blob.
+  const BLOB_SPREAD = 2;       // minimal blur to smooth antialiased glyph edges
+  const BLOB_THRESHOLD = 80;  // only count near-solid pixels → precise glyph outline
+
+  function buildTextMask() {
+    maskW = window.innerWidth;
+    maskH = window.innerHeight;
+    if (!maskCtx) {
+      const mc = document.createElement('canvas');
+      maskCtx = mc.getContext('2d', { willReadFrequently: true })!;
+    }
+    if (maskCtx.canvas.width !== maskW || maskCtx.canvas.height !== maskH) {
+      maskCtx.canvas.width = maskW;
+      maskCtx.canvas.height = maskH;
+    }
+    maskCtx.clearRect(0, 0, maskW, maskH);
+
+    // Match the title's effective font size (base × current CSS scale transform)
+    const baseSize = parseFloat(window.getComputedStyle(titleEl).fontSize);
+    const mat = new DOMMatrix(window.getComputedStyle(titleEl).transform);
+    const effectiveSize = baseSize * (mat.a || 1);
+    maskCtx.font = `900 ${effectiveSize}px Impact, 'Arial Black', sans-serif`;
+    maskCtx.textBaseline = 'top';
+
+    // Render text twice: first with large shadowBlur to create the blob halo,
+    // then solid fill on top so glyph interiors are fully opaque.
+    maskCtx.shadowColor = '#fff';
+    maskCtx.shadowBlur  = BLOB_SPREAD;
+    maskCtx.fillStyle   = '#fff';
+    for (const line of titleEl.querySelectorAll<HTMLElement>('.title-line')) {
+      const r = line.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      maskCtx.fillText(line.textContent || '', r.left, r.top);
+    }
+    maskCtx.shadowBlur = 0;
+    maskCtx.shadowColor = 'transparent';
+
+    maskData = maskCtx.getImageData(0, 0, maskW, maskH).data;
+  }
+
+  function bounceParticles() {
+    // ── Text mask collision ──────────────────────────────────────────────────
+    if (maskData) {
+      for (const p of aParticles) {
+        const px = Math.floor(p.x), py = Math.floor(p.y);
+        if (px < 0 || px >= maskW || py < 0 || py >= maskH) continue;
+        if (maskData[(py * maskW + px) * 4 + 3]! < BLOB_THRESHOLD) continue;
+
+        const sr = 4;
+        let nx = 0, ny = 0;
+        for (let dy = -sr; dy <= sr; dy++) {
+          for (let dx = -sr; dx <= sr; dx++) {
+            const sx = px + dx, sy = py + dy;
+            if (sx < 0 || sx >= maskW || sy < 0 || sy >= maskH) continue;
+            if (maskData[(sy * maskW + sx) * 4 + 3]! > BLOB_THRESHOLD) { nx -= dx; ny -= dy; }
+          }
+        }
+        const nlen = Math.sqrt(nx * nx + ny * ny) + 0.001;
+        nx /= nlen; ny /= nlen;
+
+        for (let step = 0; step < 16; step++) {
+          const cx = Math.floor(p.x), cy = Math.floor(p.y);
+          if (cx < 0 || cx >= maskW || cy < 0 || cy >= maskH) break;
+          if (maskData[(cy * maskW + cx) * 4 + 3]! < BLOB_THRESHOLD) break;
+          p.x += nx; p.y += ny;
+        }
+
+        const dot = p.vx * nx + p.vy * ny;
+        p.vx = (p.vx - 2 * dot * nx) * 0.5 + (Math.random() - 0.5) * 2;
+        p.vy = (p.vy - 2 * dot * ny) * 0.5 + (Math.random() - 0.5) * 2;
+      }
+    }
+
+    // ── Canvas / image collision ─────────────────────────────────────────────
+    // Bounce off the mle-canvas (Aggie photo) and any non-fullscreen visible imgs
+    const vW = window.innerWidth, vH = window.innerHeight;
+    const collisionEls: Element[] = [canvas]; // always include the photo canvas
+    for (const img of document.querySelectorAll<HTMLImageElement>('img')) {
+      if (parseFloat(window.getComputedStyle(img).opacity) < 0.1) continue;
+      collisionEls.push(img);
+    }
+    for (const el of collisionEls) {
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.bottom < 0 || rect.top > vH) continue;
+      if (rect.width > vW * 0.7 && rect.height > vH * 0.7) continue;
+      for (const p of aParticles) {
+        if (p.x < rect.left || p.x > rect.right || p.y < rect.top || p.y > rect.bottom) continue;
+        const fromTop = p.y - rect.top;
+        const fromBot = rect.bottom - p.y;
+        if (fromTop <= fromBot) {
+          // Hit top — kick toward nearest side edge so drop flows around
+          p.y = rect.top - 1;
+          p.vy = 0;
+          const midX = (rect.left + rect.right) / 2;
+          const dir = p.x <= midX ? -1 : 1;
+          p.vx = dir * (Math.random() * 12 + 16); // strong sideways kick
+        } else {
+          p.y = rect.bottom + 1;
+          p.vy = Math.abs(p.vy) * 0.3;
+          p.vx += (Math.random() - 0.5) * 4;
+        }
+      }
+    }
+  }
+
+  function initAsciiCanvas() {
+    const AW = window.innerWidth;
+    const AH = window.innerHeight;
+    asciiCanvas.width  = AW;
+    asciiCanvas.height = AH;
+    asciiCtx = asciiCanvas.getContext('2d')!;
+    aCols = Math.floor(AW / CELL);
+    aRows = Math.floor(AH / CELL);
+    aField = new Float32Array(aCols * aRows);
+    aParticles.length = 0;
+    for (let i = 0; i < A_N; i++) {
+      const col = Math.floor(Math.random() * aCols);
+      aParticles.push({
+        x:  col * CELL + CELL / 2,
+        y:  Math.random() * AH,      // stagger so rain doesn't all start at once
+        vx: 0,
+        vy: Math.random() * 24 + 8,  // initial downward speed (px/frame)
+      });
+    }
+  }
+
+  function tickAscii(now: number) {
+    if (!asciiCtx || !aCols || !aRows) return;
+    const AW = asciiCanvas.width;
+    const AH = asciiCanvas.height;
+
+    // Mouse repulsion
+    const MOUSE_R  = 80;  // repulsion radius (px)
+    const MOUSE_F  = 120; // repulsion force strength
+    if (aMx >= 0) {
+      for (const p of aParticles) {
+        const dx = p.x - aMx, dy = p.y - aMy;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < MOUSE_R * MOUSE_R && d2 > 0) {
+          const d = Math.sqrt(d2);
+          const f = (1 - d / MOUSE_R) * MOUSE_F / d;
+          p.vx += dx * f;
+          p.vy += dy * f;
+        }
+      }
+    }
+
+    // Gravity + integrate
+    for (const p of aParticles) {
+      p.vy = Math.min(p.vy + GRAVITY, MAX_VY);
+      p.vx *= HORIZ_DAMP;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      // Wrap horizontally
+      if (p.x < 0)  p.x += AW;
+      if (p.x > AW) p.x -= AW;
+      // Respawn at top when drop exits bottom
+      if (p.y > AH + CELL * 2) {
+        p.x  = Math.floor(Math.random() * aCols) * CELL + CELL / 2;
+        p.y  = -CELL;
+        p.vx = 0;
+        p.vy = Math.random() * 24 + 8;
+      }
+    }
+
+    bounceParticles();
+
+    // Field: decay then stamp each drop head
+    for (let i = 0; i < aField.length; i++) aField[i]! *= A_DECAY;
+    for (const p of aParticles) {
+      const gc = Math.floor(p.x / CELL);
+      const gr = Math.floor(p.y / CELL);
+      if (gr >= 0 && gr < aRows && gc >= 0 && gc < aCols) {
+        aField[gr * aCols + gc] = 1.0;
+      }
+    }
+
+    // Render
+    asciiCtx.clearRect(0, 0, AW, AH);
+    asciiCtx.font = `${CELL}px "Courier New", monospace`;
+    asciiCtx.textBaseline = 'top';
+    for (let r = 0; r < aRows; r++) {
+      for (let c = 0; c < aCols; c++) {
+        if (maskData) {
+          const px = Math.floor(c * CELL + CELL / 2);
+          const py = Math.floor(r * CELL + CELL / 2);
+          if (px >= 0 && px < maskW && py >= 0 && py < maskH &&
+              maskData[(py * maskW + px) * 4 + 3]! > BLOB_THRESHOLD) continue;
+        }
+        const b = aField[r * aCols + c]!;
+        if (b < 0.05) continue;
+        const ch = CHARSET[Math.floor(Math.random() * CHARSET.length)]!;
+        // Head cells (b near 1) render bright white-green; trail fades to dim green
+        asciiCtx.fillStyle = b > 0.85 ? '#e0f8ff' : '#00bfff';
+        asciiCtx.globalAlpha = Math.min(1.0, b);
+        asciiCtx.fillText(ch, c * CELL, r * CELL);
+      }
+    }
+    asciiCtx.globalAlpha = 1;
+    applyDodge();
+  }
+
+  // ── Text dodge ────────────────────────────────────────────────────────────
+  const DODGE_RADIUS   = 90;  // px — particles within this push chars away
+  const DODGE_STRENGTH = 28;  // max displacement px
+
+  type DodgeChar = { el: HTMLSpanElement; cx: number; cy: number };
+  let dodgeChars: DodgeChar[] = [];
+  let dodgeTick = 0;
+
+  function splitToChars(el: HTMLElement) {
+    const nodes = Array.from(el.childNodes);
+    el.innerHTML = '';
+    for (const node of nodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        for (const ch of node.textContent || '') {
+          const s = document.createElement('span');
+          s.className = 'dodge-char';
+          s.style.display = 'inline-block';
+          s.style.transition = 'transform 0.09s ease-out';
+          s.textContent = ch === ' ' ? ' ' : ch;
+          el.appendChild(s);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        splitToChars(node as HTMLElement);
+        el.appendChild(node as HTMLElement);
+      }
+    }
+  }
+
+  function updateDodgeCache() {
+    dodgeChars = [];
+    for (const s of titleEl.querySelectorAll<HTMLSpanElement>('.dodge-char')) {
+      const r = s.getBoundingClientRect();
+      if (r.width === 0) continue; // hidden line (ML line before step 5)
+      dodgeChars.push({ el: s, cx: r.left + r.width / 2, cy: r.top + r.height / 2 });
+    }
+  }
+
+  function initDodge() {
+    for (const line of titleEl.querySelectorAll<HTMLElement>('.title-line')) {
+      splitToChars(line);
+    }
+    updateDodgeCache();
+  }
+
+  function applyDodge() {
+    dodgeTick++;
+    if (dodgeTick % 4 === 0) updateDodgeCache(); // keep positions fresh as title scales
+
+    if (aMx < 0) {
+      for (const dc of dodgeChars) dc.el.style.transform = '';
+      return;
+    }
+
+    const R2 = DODGE_RADIUS * DODGE_RADIUS;
+    for (const dc of dodgeChars) {
+      const dx = dc.cx - aMx, dy = dc.cy - aMy;
+      const d2 = dx * dx + dy * dy;
+      if (d2 > R2) { dc.el.style.transform = ''; continue; }
+      const d = Math.sqrt(d2) + 1;
+      const scale = ((DODGE_RADIUS - d) / DODGE_RADIUS) * DODGE_STRENGTH;
+      dc.el.style.transform = `translate(${((dx / d) * scale).toFixed(1)}px,${((dy / d) * scale).toFixed(1)}px)`;
+    }
+  }
+
+  // Mouse tracking across entire hero for ASCII interactivity
+  hero.addEventListener('mousemove', e => { aMx = e.clientX; aMy = e.clientY; });
+  hero.addEventListener('mouseleave', () => { aMx = -1; aMy = -1; });
+
+  // ── Ripple canvas ─────────────────────────────────────────────────────────
   function initCanvas(src: HTMLImageElement) {
     const maxW = Math.min(window.innerWidth * 0.9, 900);
     const maxH = window.innerHeight * 0.82;
@@ -252,7 +542,7 @@ import Layout from '../layouts/Layout.astro';
     waveA.fill(0); waveB.fill(0);
   }
 
-  function tick() {
+  function tick(now: number = 0) {
     if (!ctx || !output || !W) { requestAnimationFrame(tick); return; }
     if (pActive && mx > 1 && mx < W - 2 && my > 1 && my < H - 2) {
       const ci = my * W + mx;
@@ -282,14 +572,13 @@ import Layout from '../layouts/Layout.astro';
     }
     ctx.putImageData(output!, 0, 0);
     [waveA, waveB] = [waveB, waveA];
+    tickAscii(now);
     requestAnimationFrame(tick);
   }
 
   // ── Canvas interaction ────────────────────────────────────────────────────
   canvas.addEventListener('mousedown', e => {
-    isDragging     = true;
-    dragStartX     = e.clientX;
-    dragStartAngle = angleIndex;
+    isDragging = true; dragStartX = e.clientX; dragStartAngle = angleIndex;
     canvas.style.cursor = 'grabbing';
     e.preventDefault();
   });
@@ -299,15 +588,15 @@ import Layout from '../layouts/Layout.astro';
     mx = Math.floor((e.clientX - r.left) * W / r.width);
     my = Math.floor((e.clientY - r.top)  * H / r.height);
     if (isDragging) {
-      const steps = Math.round((e.clientX - dragStartX) / DRAG_PER_STEP);
-      setAngle(dragStartAngle + steps);
+      setAngle(dragStartAngle + Math.round((e.clientX - dragStartX) / DRAG_PER_STEP));
     } else {
       pActive = true;
       const now = Date.now();
       if (now - lastRipplePlay > RIPPLE_THROTTLE) {
         lastRipplePlay = now;
-        rippleSfx.currentTime = 0;
-        rippleSfx.play().catch(() => {});
+        const sfx = rippleSfx.cloneNode() as HTMLAudioElement;
+        sfx.volume = rippleSfx.volume;
+        sfx.play().catch(() => {});
       }
     }
   });
@@ -321,31 +610,32 @@ import Layout from '../layouts/Layout.astro';
     if (isDragging) { isDragging = false; canvas.style.cursor = 'grab'; }
   });
 
-  // Touch: horizontal drag on canvas = angle, vertical swipe on window = zoom
+  // Touch
   let canvasTouchStartX = 0, canvasTouchStartAngle = 0;
   let isHorizontalTouch = false;
 
   canvas.addEventListener('touchstart', e => {
-    canvasTouchStartX     = e.touches[0].clientX;
-    canvasTouchStartAngle = angleIndex;
-    isHorizontalTouch     = false;
+    canvasTouchStartX = e.touches[0].clientX; canvasTouchStartAngle = angleIndex;
+    isHorizontalTouch = false;
   }, { passive: true });
 
   canvas.addEventListener('touchmove', e => {
     const dx = e.touches[0].clientX - canvasTouchStartX;
-    const dy = e.touches[0].clientY - e.touches[0].clientY;
     if (!isHorizontalTouch && Math.abs(dx) > 12) isHorizontalTouch = true;
     if (isHorizontalTouch) setAngle(canvasTouchStartAngle + Math.round(dx / DRAG_PER_STEP));
   }, { passive: true });
 
   canvas.addEventListener('touchend', () => { isHorizontalTouch = false; }, { passive: true });
 
-  // ── Scroll zoom sequence ──────────────────────────────────────────────────
+  // ── Scroll zoom ───────────────────────────────────────────────────────────
   let zoomStep = 0;
+  let heroInView = true;
+  let lastStep = 0;
+  const STEP_DELAY = 150;
 
   function applyVisuals() {
     const imgScale = 1 + (Math.min(zoomStep, IMG_SCALE_STEPS) / IMG_SCALE_STEPS) * 0.25;
-    canvas.style.transform = `scale(${imgScale})`;
+    canvasWrap.style.transform = `scale(${imgScale})`;
 
     const textOpacity = zoomStep < TEXT_FULL_STEP
       ? 0.15 + (zoomStep / IMG_SCALE_STEPS) * 0.6 : 1.0;
@@ -357,22 +647,17 @@ import Layout from '../layouts/Layout.astro';
     const mlVisible = zoomStep >= TEXT_FULL_STEP;
     lineMl.style.maxHeight = mlVisible ? '5rem' : '0';
     lineMl.style.opacity   = mlVisible ? '1'    : '0';
+    updateDodgeCache();  // refresh char positions whenever title layout changes
+    buildTextMask();     // refresh pixel-perfect glyph collision mask
 
-    // Drag hint: appears at last scroll step, flashes until user drags
-    const showHint = zoomStep >= ZOOM_STEPS && !hasDragged;
+    const showHint = !hasDragged;
     dragHint.style.opacity = showHint ? '1' : '0';
     if (showHint) dragHint.classList.add('flashing');
     else dragHint.classList.remove('flashing');
 
-    // Blurred background matches current angle
     bgImg.style.opacity = zoomStep >= ZOOM_STEPS ? '1' : '0';
-
     bgMusic.volume = 0.2 + (Math.min(zoomStep, IMG_SCALE_STEPS) / IMG_SCALE_STEPS) * 0.8;
   }
-
-  let heroInView = true;
-  let lastStep = 0;
-  const STEP_DELAY = 150;
 
   function advance(dir: number) {
     const now = Date.now();
@@ -395,7 +680,7 @@ import Layout from '../layouts/Layout.astro';
 
   let touchY0 = 0;
   window.addEventListener('touchstart', (e: TouchEvent) => { touchY0 = e.touches[0].clientY; startAudio(); }, { passive: true });
-  window.addEventListener('touchmove',  (e: TouchEvent) => {
+  window.addEventListener('touchmove', (e: TouchEvent) => {
     if (heroInView && zoomStep !== 0) e.preventDefault();
   }, { passive: false });
   window.addEventListener('touchend', (e: TouchEvent) => {
@@ -407,6 +692,9 @@ import Layout from '../layouts/Layout.astro';
   // ── Start ─────────────────────────────────────────────────────────────────
   function start() {
     initCanvas(angleImgs[angleIndex]);
+    initAsciiCanvas();
+    initDodge();
+    buildTextMask();
     bgImg.src = ANGLE_SRCS[angleIndex];
     applyVisuals();
     tick();
