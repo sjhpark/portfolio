@@ -4,146 +4,132 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
 	<nav id="top-nav">
-		<a href="#about" id="about-btn">About</a>
+		<a href="/about">About</a>
 		<a href="/projects">Projects</a>
+		<a href="/playful">Playful</a>
 	</nav>
-	<!-- Hero: full-screen 3D physics canvas -->
+
+	<!-- MLE Hero: wheel cycles images, then scrolls to About -->
 	<section id="hero">
-		<div id="hero-bg"></div>
-		<canvas id="canvas"></canvas>
-		<div class="hero-text">
-			<h1>Jong Hoon (Sam) Park</h1>
-		</div>
-		<div id="drag-hint">
-			<div class="drag-hint-arrow">↓</div>
-			<div class="drag-hint-text">DRAG TO LAUNCH</div>
-		</div>
-		<div id="angle-label"></div>
-		<div class="scroll-hint" id="scroll-hint">ABOUT ↓</div>
+		<img id="bg-img" src="/images/aggie.png" alt="" />
+		<h1 id="hero-title">
+			<span class="title-line">Hi, I'm</span>
+			<span class="title-line" id="line-ml"><span style="color:#000">Machine Learning</span></span>
+			<span class="title-line">Engineer</span>
+		</h1>
+		<canvas id="mle-canvas"></canvas>
+		<p id="drag-hint">← drag to explore angles →</p>
 	</section>
 
-	<!-- About / Biography -->
-	<section id="about">
-		<div class="about-inner">
-			<div class="about-photo">
-				<img src="/images/profile.jpg" alt="Jong Hoon (Sam) Park" />
-			</div>
-			<div class="about-text">
-				<h2>About Me</h2>
-				<p>
-					I'm a recent graduate from <span class="accent">Carnegie Mellon University</span> with a Master's degree in Mechanical Engineering (2022–2024),
-					where I worked as a Graduate Research Assistant.
-				</p>
-				<p>
-					My work focuses on applying machine learning as a statistical predictor across
-					<span class="accent">robotics</span>, <span class="accent">autonomous driving</span>,
-					and <span class="accent">aviation</span>. I'm particularly interested in multimodal ML,
-					self-supervised learning, on-device ML, and model compression.
-				</p>
-				<p>
-					Currently at <span class="accent">Verdant Robotics</span>, working on ML systems
-					for agricultural robotics.
-				</p>
-				<div class="skills">
-					<span>PyTorch</span><span>Computer Vision</span>
-					<span>Multimodal ML</span><span>Signal Processing</span>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Selected Projects -->
-	<section id="projects">
-		<h2>Selected Projects</h2>
-		<div class="projects-grid">
-
-			<a href="/projects/rag" class="project-card">
-				<div class="project-img">
-					<img src="/images/rag.png" alt="RAG Chatbot" />
-				</div>
-				<div class="project-info">
-					<h3>Q&amp;A Chatbot via Retrieval Augmented Generation</h3>
-					<p>
-						Built a RAG-based Q&amp;A system to mitigate LLM hallucination. Users upload PDF documents;
-						the pipeline vectorizes them into a grounded database and performs semantic search to retrieve
-						relevant context before generating responses with an LLM.
-					</p>
-					<div class="tags"><span>LLM</span><span>RAG</span><span>Vector DB</span><span>NLP</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/pilot-workload" class="project-card">
-				<div class="project-img">
-					<img src="/images/pilot_workload.png" alt="Pilot Workload Estimation" />
-				</div>
-				<div class="project-info">
-					<h3>Pilot Workload Estimation via Multimodal ML</h3>
-					<p>
-						Multimodal ML model estimating eVTOL pilot stress levels from 7 biometric modalities —
-						heart rate, eye gaze, GSR, brain activity (fNIR), body pose, grip force, and response time.
-						Ground truth collected via NASA Task Load Index (TLX).
-					</p>
-					<div class="tags"><span>Multimodal ML</span><span>Signal Processing</span><span>PyTorch</span><span>eVTOL</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/on-device-ml" class="project-card">
-				<div class="project-img">
-					<img src="/images/on_device_ml.png" alt="On-Device ML" />
-				</div>
-				<div class="project-info">
-					<h3>Large Generative Model On-Device Deployment &amp; Optimization</h3>
-					<p>
-						Compressed a 72M-parameter virtual garment try-on model onto NVIDIA Jetson Nano 4GB via
-						quantization, structured/unstructured pruning, and knowledge distillation.
-						Conducted filter-wise sensitivity analysis to identify key-player filters.
-					</p>
-					<div class="tags"><span>Model Compression</span><span>Pruning</span><span>Knowledge Distillation</span><span>Jetson Nano</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/aircraft-traj-pred" class="project-card">
-				<div class="project-img">
-					<img src="/images/aircraft_traj_pred.png" alt="Motion Prediction in Airports" />
-				</div>
-				<div class="project-info">
-					<h3>Motion Prediction in Airports via Heterogeneous Map Representations</h3>
-					<p>
-						Studied rasterized vs. graph-based airport map representations for aircraft motion forecasting
-						using a transformer-based multi-modal joint prediction model (GPT-2 encoder + GMM header).
-						Trained on 200 days of FAA SWIM trajectory data from KSEA and KEWR airports.
-					</p>
-					<div class="tags"><span>Motion Forecasting</span><span>Transformer</span><span>Graph Neural Net</span><span>Aviation</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/emotion-recog" class="project-card">
-				<div class="project-img">
-					<img src="/images/emotion_recog.png" alt="Facial Emotion Recognition" />
-				</div>
-				<div class="project-info">
-					<h3>Human Facial Emotion Recognition &amp; Classification</h3>
-					<p>
-						Trained a CNN classifier on the AffectNet benchmark (291K images, 8 emotion labels)
-						to recognize facial expressions. Achieved ~70% validation accuracy. Analyzed class
-						imbalance via confusion matrix, precision, recall, and F1 scores.
-					</p>
-					<div class="tags"><span>CNN</span><span>Computer Vision</span><span>AffectNet</span><span>Classification</span></div>
-				</div>
-			</a>
-
-		</div>
-	</section>
-
-	<footer>
-		<p>© 2025 Jong Hoon (Sam) Park &nbsp;·&nbsp;
-			<a href="https://github.com/sjhpark" target="_blank">GitHub</a> &nbsp;·&nbsp;
-			<a href="https://www.linkedin.com/in/jonghoon-park" target="_blank">LinkedIn</a>
-		</p>
-	</footer>
 </Layout>
 
 <style>
+	/* --- Hero / MLE gallery --- */
+	#hero {
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #000;
+		overflow: hidden;
+		position: relative;
+	}
+	#hero-title {
+		position: absolute;
+		top: 5rem;
+		left: 8vw;
+		font-family: 'Impact', 'Arial Black', 'Haettenschweiler', sans-serif;
+		font-size: 4rem;
+		font-weight: 900;
+		line-height: 1.05;
+		color: #fff;
+		opacity: 0.15;
+		transform: scale(1);
+		transform-origin: top left;
+		transition: opacity 0.4s ease, transform 0.4s ease;
+		pointer-events: none;
+		z-index: 2;
+		white-space: nowrap;
+	}
+	.title-line { display: block; }
+	#line-ml {
+		overflow: hidden;
+		max-height: 0;
+		opacity: 0;
+		transition: max-height 0.4s ease, opacity 0.4s ease;
+	}
+	#bg-img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		filter: blur(20px);
+		opacity: 0;
+		transition: opacity 0.6s ease;
+		z-index: 0;
+		pointer-events: none;
+		transform: scale(1.05); /* prevent blur edge artifacts */
+	}
+	#mle-canvas {
+		display: block;
+		cursor: grab;
+		border-radius: 8px;
+		box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(22,235,235,0.06);
+		transition: transform 0.45s ease;
+		transform-origin: center;
+		z-index: 1;
+		position: relative;
+	}
+	#drag-hint {
+		position: absolute;
+		bottom: 2.5rem;
+		width: 100%;
+		text-align: center;
+		pointer-events: none;
+		color: rgba(255,255,255,0.6);
+		font-size: 0.72rem;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		opacity: 0;
+		transition: opacity 0.5s ease;
+		z-index: 3;
+	}
+	#drag-hint.flashing {
+		animation: hint-flash 1.2s ease-in-out infinite;
+	}
+	@keyframes hint-flash {
+		0%, 100% { opacity: 0.15; }
+		50%       { opacity: 0.9; }
+	}
+	#hero-ui {
+		position: absolute;
+		bottom: 2.5rem;
+		width: 100%;
+		text-align: center;
+		pointer-events: none;
+	}
+	.hero-scroll-hint {
+		color: rgba(255,255,255,0.35);
+		font-size: 0.72rem;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		margin-bottom: 1rem;
+	}
+	#hero-dots {
+		display: flex;
+		justify-content: center;
+		gap: 8px;
+	}
+	.hero-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: rgba(255,255,255,0.2);
+		transition: background 0.3s;
+	}
+	.hero-dot.active { background: #16ebeb; }
+
 	#top-nav {
 		position: fixed;
 		top: 0;
@@ -162,987 +148,272 @@ import Layout from '../layouts/Layout.astro';
 		transition: color 0.2s;
 	}
 	#top-nav a:hover { color: #fff; }
-	/* --- Hero --- */
-	#hero {
-		position: relative;
-		width: 100%;
-		height: 100vh;
-		height: 100svh;
-		overflow: hidden;
-	}
-	#hero-bg {
-		position: absolute;
-		top: 0; left: 0;
-		width: 100%; height: 100%;
-		background-image: url('/images/welcome_page1.png?v=3');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		filter: contrast(1.5) brightness(1.15) saturate(1.3);
-		z-index: 0;
-	}
-	#canvas {
-		position: absolute;
-		top: 0; left: 0;
-		width: 100%; height: 100%;
-		cursor: grab;
-		z-index: 1;
-	}
-	#canvas:active { cursor: grabbing; }
-	.hero-text {
-		position: absolute;
-		bottom: 12%;
-		left: 50%;
-		transform: translateX(-50%);
-		text-align: center;
-		pointer-events: none;
-		z-index: 10;
-	}
-	.hero-text h1 {
-		font-size: clamp(1.5rem, 4vw, 3rem);
-		font-weight: 300;
-		letter-spacing: 0.1em;
-		color: #fff;
-	}
-	.hero-text p {
-		font-size: clamp(0.75rem, 1.5vw, 1rem);
-		letter-spacing: 0.2em;
-		color: #16ebeb;
-		margin-top: 0.5rem;
-		text-transform: uppercase;
-	}
-	.scroll-hint {
-		position: absolute;
-		bottom: 5%;
-		left: 50%;
-		transform: translateX(-50%);
-		font-size: 1.4rem;
-		letter-spacing: 0.25em;
-		color: #fff;
-		pointer-events: auto;
-		cursor: pointer;
-		animation: pulse 2s ease-in-out infinite;
-		text-shadow: 0 0 20px #16ebeb, 0 0 40px #16ebeb;
-	}
-	@keyframes pulse {
-		0%, 100% { opacity: 0.2; text-shadow: 0 0 10px #16ebeb; }
-		50% { opacity: 1; text-shadow: 0 0 30px #16ebeb, 0 0 60px #16ebeb, 0 0 90px #16ebeb; }
-	}
-
-	/* --- Angle label --- */
-	#angle-label {
-		position: absolute;
-		transform: translate(-50%, -50%);
-		font-size: 0.8rem;
-		letter-spacing: 0.05em;
-		color: #fff;
-		pointer-events: none;
-		z-index: 20;
-		display: none;
-		font-variant-numeric: tabular-nums;
-		text-shadow: 0 0 6px rgba(255,255,255,0.9), 0 0 14px rgba(255,255,255,0.5);
-	}
-
-	/* --- Drag hint --- */
-	#drag-hint {
-		position: absolute;
-		transform: translate(-50%, -100%);
-		text-align: center;
-		pointer-events: none;
-		z-index: 20;
-		transition: opacity 0.5s ease;
-	}
-	.drag-hint-text {
-		font-size: 0.72rem;
-		letter-spacing: 0.25em;
-		color: #fff;
-		text-transform: uppercase;
-		animation: hint-flash 0.9s ease-in-out infinite;
-	}
-	.drag-hint-arrow {
-		font-size: 1.1rem;
-		color: #16ebeb;
-		animation: hint-flash 0.9s ease-in-out infinite 0.15s;
-		line-height: 1;
-		margin-bottom: 3px;
-	}
-	@keyframes hint-flash {
-		0%, 100% { opacity: 0.15; text-shadow: none; }
-		50% {
-			opacity: 1;
-			text-shadow: 0 0 12px #16ebeb, 0 0 28px #16ebeb, 0 0 50px rgba(22,235,235,0.6);
-		}
-	}
-
-	/* --- About --- */
-	#about {
-		background: #050505;
-		padding: 100px 8vw;
-		border-top: 1px solid rgba(22,235,235,0.15);
-	}
-	.about-inner {
-		display: flex;
-		gap: 60px;
-		align-items: flex-start;
-		max-width: 1100px;
-		margin: 0 auto;
-	}
-	.about-photo {
-		flex-shrink: 0;
-		width: 220px;
-	}
-	.about-photo img {
-		width: 100%;
-		border-radius: 12px;
-		filter: grayscale(20%);
-	}
-	.about-text h2 {
-		font-size: 2rem;
-		font-weight: 300;
-		letter-spacing: 0.08em;
-		color: #fff;
-		margin-bottom: 24px;
-	}
-	.about-text p {
-		font-size: 1rem;
-		line-height: 1.8;
-		color: rgba(255,255,255,0.7);
-		margin-bottom: 16px;
-	}
-	.accent { color: #16ebeb; }
-	.skills {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
-		margin-top: 28px;
-	}
-	.skills span {
-		font-size: 0.75rem;
-		letter-spacing: 0.1em;
-		padding: 6px 14px;
-		border: 1px solid rgba(22,235,235,0.4);
-		color: #16ebeb;
-		border-radius: 20px;
-		text-transform: uppercase;
-	}
-
-	/* --- Projects --- */
-	#projects {
-		background: #050505;
-		padding: 80px 8vw;
-		border-top: 1px solid rgba(255,255,255,0.06);
-	}
-	#projects h2 {
-		font-size: 2rem;
-		font-weight: 300;
-		letter-spacing: 0.08em;
-		color: #fff;
-		margin-bottom: 48px;
-		max-width: 1100px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.projects-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-		gap: 28px;
-		max-width: 1100px;
-		margin: 0 auto;
-	}
-	.project-card {
-		background: #0e0e0e;
-		border: 1px solid rgba(255,255,255,0.08);
-		border-radius: 12px;
-		overflow: hidden;
-		transition: border-color 0.3s, transform 0.3s;
-		text-decoration: none;
-		color: inherit;
-		display: block;
-	}
-	.project-card:hover {
-		border-color: rgba(22,235,235,0.4);
-		transform: translateY(-4px);
-	}
-	.project-img {
-		width: 100%;
-		height: 200px;
-		overflow: hidden;
-		background: #111;
-	}
-	.project-img img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-	.project-info {
-		padding: 24px;
-	}
-	.project-info h3 {
-		font-size: 1.05rem;
-		font-weight: 500;
-		color: #fff;
-		margin-bottom: 12px;
-	}
-	.project-info p {
-		font-size: 0.875rem;
-		line-height: 1.7;
-		color: rgba(255,255,255,0.6);
-		margin-bottom: 16px;
-	}
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-	}
-	.tags span {
-		font-size: 0.7rem;
-		padding: 4px 10px;
-		background: rgba(22,235,235,0.08);
-		color: #16ebeb;
-		border-radius: 4px;
-		letter-spacing: 0.05em;
-	}
-
-	/* --- Footer --- */
-	footer {
-		background: #050505;
-		border-top: 1px solid rgba(255,255,255,0.06);
-		padding: 32px 8vw;
-		text-align: center;
-		font-size: 0.8rem;
-		color: rgba(255,255,255,0.3);
-	}
-	footer a {
-		color: rgba(255,255,255,0.5);
-		text-decoration: none;
-	}
-	footer a:hover { color: #16ebeb; }
-
 	/* --- Responsive --- */
 	@media (max-width: 700px) {
-		.about-inner { flex-direction: column; }
-		.about-photo { width: 140px; }
+		#hero-title { font-size: 2.2rem; }
 	}
 </style>
 
 <script>
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import RAPIER from '@dimforge/rapier3d-compat';
+(function () {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
 
-await RAPIER.init();
+  const ZOOM_STEPS     = 6;
+  const IMG_SCALE_STEPS = 4;
+  const TEXT_FULL_STEP  = 5;
+  const DRAG_PER_STEP   = 80; // px of horizontal drag per angle step
 
-// --- Renderer ---
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const canvas   = document.getElementById('mle-canvas') as HTMLCanvasElement;
+  const titleEl  = document.getElementById('hero-title')!;
+  const bgImg    = document.getElementById('bg-img') as HTMLImageElement;
+  const lineMl   = document.getElementById('line-ml')!;
+  const dragHint = document.getElementById('drag-hint')!;
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 28;
-const clock = new THREE.Clock();
+  // ── Audio ─────────────────────────────────────────────────────────────────
+  const bgMusic   = new Audio('/sounds/morning_breeze.wav');
+  bgMusic.loop    = true;
+  bgMusic.volume  = 0.2;
+  const rippleSfx = new Audio('/sounds/water_droplet.wav');
+  rippleSfx.volume = 0.5;
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-dirLight.position.set(5, 10, 8);
-scene.add(dirLight);
-const cyanLight = new THREE.PointLight(0x16ebeb, 3, 120);
-cyanLight.position.set(0, 10, 10);
-scene.add(cyanLight);
+  let audioStarted = false;
+  let lastRipplePlay = 0;
+  const RIPPLE_THROTTLE = 300;
 
-// --- Physics ---
-const world = new RAPIER.World({ x: 0, y: 0, z: 0 });
-const eventQueue = new RAPIER.EventQueue(true);
-
-function viewBounds() {
-  const fovRad = (camera.fov * Math.PI) / 180;
-  const halfH = Math.tan(fovRad / 2) * camera.position.z;
-  return { halfW: halfH * camera.aspect, halfH };
-}
-
-function mouseToWorld(nx: number, ny: number): THREE.Vector3 {
-  const vec = new THREE.Vector3(nx, ny, 0.5);
-  vec.unproject(camera);
-  const dir = vec.sub(camera.position).normalize();
-  const dist = -camera.position.z / dir.z;
-  return camera.position.clone().add(dir.multiplyScalar(dist));
-}
-
-// --- Star particles ---
-function makeStarShape(): THREE.ShapeGeometry {
-  const shape = new THREE.Shape();
-  const pts = 5, outer = 0.5, inner = 0.2;
-  for (let i = 0; i < pts * 2; i++) {
-    const angle = (i * Math.PI) / pts - Math.PI / 2;
-    const r = i % 2 === 0 ? outer : inner;
-    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
-    i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
-  }
-  shape.closePath();
-  return new THREE.ShapeGeometry(shape);
-}
-const starGeo = makeStarShape();
-interface Particle { mesh: THREE.Mesh; vel: THREE.Vector3; life: number; spin: number; }
-const particles: Particle[] = [];
-
-function spawnStars(x: number, y: number, count = 8) {
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
-    const speed = 3 + Math.random() * 6;
-    const mat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(0.12 + Math.random() * 0.08, 1, 0.75),
-      transparent: true, opacity: 1,
-    });
-    const mesh = new THREE.Mesh(starGeo, mat);
-    mesh.scale.setScalar(0.175 + Math.random() * 0.25);
-    mesh.position.set(x, y, 0.2);
-    mesh.rotation.z = Math.random() * Math.PI * 2;
-    scene.add(mesh);
-    particles.push({
-      mesh,
-      vel: new THREE.Vector3(Math.cos(angle) * speed, Math.sin(angle) * speed, 0),
-      life: 1,
-      spin: (Math.random() - 0.5) * 8,
-    });
-  }
-}
-
-function updateParticles(dt: number) {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.life -= dt * 2.5;
-    if (p.life <= 0) {
-      scene.remove(p.mesh);
-      (p.mesh.material as THREE.Material).dispose();
-      particles.splice(i, 1);
-      continue;
-    }
-    p.mesh.position.x += p.vel.x * dt;
-    p.mesh.position.y += p.vel.y * dt;
-    p.vel.multiplyScalar(0.93);
-    p.mesh.rotation.z += p.spin * dt;
-    (p.mesh.material as THREE.MeshBasicMaterial).opacity = p.life;
-  }
-}
-
-// --- MLP: 2 → 16 (tanh) → 2 (softmax), binary classification, SGD backprop ---
-class MLP {
-  W1: number[][];
-  b1: number[];
-  W2: number[][];
-  b2: number[];
-
-  constructor() {
-    const r = () => (Math.random() - 0.5) * 0.6;
-    this.W1 = Array.from({ length: 16 }, () => [r(), r()]);
-    this.b1 = Array.from({ length: 16 }, () => 0);
-    this.W2 = Array.from({ length: 2 }, () => Array.from({ length: 16 }, r));
-    this.b2 = Array.from({ length: 2 }, () => 0);
+  function startAudio() {
+    if (audioStarted) return;
+    audioStarted = true;
+    bgMusic.play().catch(() => {});
   }
 
-  forward(x: number, y: number): number[] {
-    const h: number[] = new Array(16);
-    for (let j = 0; j < 16; j++) {
-      h[j] = Math.tanh(this.W1[j][0] * x + this.W1[j][1] * y + this.b1[j]);
-    }
-    const logits: number[] = new Array(2);
-    for (let k = 0; k < 2; k++) {
-      let s = this.b2[k];
-      for (let j = 0; j < 16; j++) s += this.W2[k][j] * h[j];
-      logits[k] = s;
-    }
-    const maxL = Math.max(logits[0], logits[1]);
-    let sum = 0;
-    const probs: number[] = new Array(2);
-    for (let k = 0; k < 2; k++) { probs[k] = Math.exp(logits[k] - maxL); sum += probs[k]; }
-    for (let k = 0; k < 2; k++) probs[k] /= sum;
-    return probs;
-  }
-
-  train(samples: Array<{ x: number; y: number; cls: number }>, lr = 0.04) {
-    const h: number[] = new Array(16);
-    const dh: number[] = new Array(16);
-    for (const { x, y, cls } of samples) {
-      for (let j = 0; j < 16; j++) {
-        h[j] = Math.tanh(this.W1[j][0] * x + this.W1[j][1] * y + this.b1[j]);
-      }
-      const logits: number[] = new Array(2);
-      for (let k = 0; k < 2; k++) {
-        let s = this.b2[k];
-        for (let j = 0; j < 16; j++) s += this.W2[k][j] * h[j];
-        logits[k] = s;
-      }
-      const maxL = Math.max(logits[0], logits[1]);
-      let sum = 0;
-      const probs: number[] = new Array(2);
-      for (let k = 0; k < 2; k++) { probs[k] = Math.exp(logits[k] - maxL); sum += probs[k]; }
-      for (let k = 0; k < 2; k++) probs[k] /= sum;
-
-      const dL: number[] = [
-        probs[0] - (cls === 0 ? 1 : 0),
-        probs[1] - (cls === 1 ? 1 : 0),
-      ];
-
-      for (let k = 0; k < 2; k++) {
-        this.b2[k] -= lr * dL[k];
-        for (let j = 0; j < 16; j++) this.W2[k][j] -= lr * dL[k] * h[j];
-      }
-
-      for (let j = 0; j < 16; j++) {
-        let g = 0;
-        for (let k = 0; k < 2; k++) g += this.W2[k][j] * dL[k];
-        dh[j] = g * (1 - h[j] * h[j]);
-      }
-
-      for (let j = 0; j < 16; j++) {
-        this.b1[j] -= lr * dh[j];
-        this.W1[j][0] -= lr * dh[j] * x;
-        this.W1[j][1] -= lr * dh[j] * y;
-      }
-    }
-  }
-}
-
-const mlp = new MLP();
-
-// --- Decision boundary canvas texture (256×256 for crisp boundaries) ---
-const DB_RES = 256;
-const DB_WORLD_W = 60, DB_WORLD_H = 38;
-const dbCanvas = document.createElement('canvas');
-dbCanvas.width = DB_RES; dbCanvas.height = DB_RES;
-const dbCtx = dbCanvas.getContext('2d')!;
-const dbTexture = new THREE.CanvasTexture(dbCanvas);
-
-// Class colors: 0=blue (planet1), 1=white (planet3/earth)
-const CLASS_RGB = [[50, 120, 255], [220, 220, 220]] as const;
-const CLASS_RING_HEX = [0x3278ff, 0xdcdcdc];
-
-function updateDecisionBoundary() {
-  const img = dbCtx.createImageData(DB_RES, DB_RES);
-  const d = img.data;
-  const invX = 2 / (DB_WORLD_W * (DB_RES - 1));
-  const invY = 2 / (DB_WORLD_H * (DB_RES - 1));
-  for (let py = 0; py < DB_RES; py++) {
-    const ny = (0.5 - py / (DB_RES - 1)) * 2;  // [-1, 1]
-    for (let px = 0; px < DB_RES; px++) {
-      const nx = (px / (DB_RES - 1) - 0.5) * 2; // [-1, 1]
-      const probs = mlp.forward(nx, ny);
-      let maxP = probs[0], maxC = 0;
-      if (probs[1] > maxP) { maxP = probs[1]; maxC = 1; }
-      const alpha = Math.pow(Math.max(0, maxP - 0.34) * 1.52, 1.4) * 210;
-      const [r, g, b] = CLASS_RGB[maxC];
-      const idx = (py * DB_RES + px) * 4;
-      d[idx] = r; d[idx + 1] = g; d[idx + 2] = b; d[idx + 3] = alpha;
-    }
-  }
-  dbCtx.putImageData(img, 0, 0);
-  dbTexture.needsUpdate = true;
-}
-
-const bgMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(DB_WORLD_W + 12, DB_WORLD_H + 10),
-  new THREE.MeshBasicMaterial({ map: dbTexture, transparent: true, opacity: 0.45, depthWrite: false })
-);
-bgMesh.position.z = -2;
-scene.add(bgMesh);
-
-// --- Object definitions ---
-// Class is derived purely from model filename — never specified manually.
-//   planet1 → 0 (red)   planet2 → 1 (cyan)   planet3 / earth → 2 (yellow)   rocket → -1
-interface ObjDef { path: string; diameter: number; pos: [number, number, number]; }
-
-function pathToClass(path: string): number {
-  if (path.includes('rocket'))  return -1;
-  if (path.includes('planet1')) return 0;
-  return 1; // planet3.glb and earth.glb → class 1
-}
-
-const objectDefs: ObjDef[] = [
-  // ── Batch 1 ───────────────────────────────────────────────
-  { path: '/models/earth.glb',       diameter: 6.0,  pos: [  0,   0,  0] },
-  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [-12,   6,  0] },
-  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [  0, -11,  0] },
-  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [-10,  -6,  0] },
-  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [  6,   9,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ -6, -10,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-16,   2,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ 16,   2,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [  5,  13,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [-14,  -9,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-18,   9,  0] },
-  // ── Batch 2 ───────────────────────────────────────────────
-
-  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [ 21,  10,  0] },
-  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [ -8, -13,  0] },
-  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [-24,  -3,  0] },
-  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [  3,  13,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [ 25,   6,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ 13, -13,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [ 22, -12,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [-22, -12,  0] },
-  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-18,  13,  0] },
-  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [  0, -14,  0] },
-  // ── Rocket (draggable, no class) ──────────────────────────
-  { path: '/models/rocket.glb', diameter: 3.75, pos: [  0,   8,  0] },
-];
-
-const ROCKET_INDEX = objectDefs.length - 1; // 22
-
-const meshes: THREE.Group[] = [];
-const bodies: RAPIER.RigidBody[] = [];
-const colliderRadii: number[] = [];
-const handleToIndex = new Map<number, number>();
-const rotSpeeds = objectDefs.map(() => ({
-  x: (Math.random() - 0.5) * 0.008,
-  y: Math.random() * 0.012 + 0.004,
-  z: (Math.random() - 0.5) * 0.005,
-}));
-const ringMeshes: (THREE.Mesh | null)[] = [];
-
-const loader = new GLTFLoader();
-const gltfCache = new Map<string, THREE.Group>();
-async function loadGLTF(path: string): Promise<THREE.Group> {
-  if (!gltfCache.has(path)) {
-    const group: THREE.Group = await new Promise((res, rej) =>
-      loader.load(path, g => res(g.scene), undefined, rej)
-    );
-    gltfCache.set(path, group);
-  }
-  return gltfCache.get(path)!.clone();
-}
-
-for (let i = 0; i < objectDefs.length; i++) {
-  const { path, diameter, pos } = objectDefs[i];
-  const cls = pathToClass(path);
-  const gltf = await loadGLTF(path);
-
-  const box1 = new THREE.Box3().setFromObject(gltf);
-  const sz = new THREE.Vector3();
-  box1.getSize(sz);
-  gltf.scale.setScalar(diameter / Math.max(sz.x, sz.y, sz.z));
-
-  const box2 = new THREE.Box3().setFromObject(gltf);
-  const center = new THREE.Vector3();
-  box2.getCenter(center);
-  gltf.position.sub(center);
-
-  const wrapper = new THREE.Group();
-  wrapper.add(gltf);
-  wrapper.position.set(...pos);
-  scene.add(wrapper);
-  meshes.push(wrapper);
-
-  const radius = diameter / 2;
-  colliderRadii.push(radius);
-
-  const body = world.createRigidBody(
-    RAPIER.RigidBodyDesc.dynamic()
-      .setTranslation(...pos)
-      .setLinearDamping(0.4)
-      .setAngularDamping(0.8)
-      .setGravityScale(0)
-  );
-  const collider = world.createCollider(
-    RAPIER.ColliderDesc.ball(radius)
-      .setDensity(1.0)
-      .setRestitution(0.85)
-      .setFriction(0.2)
-      .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS),
-    body
-  );
-  handleToIndex.set(collider.handle, i);
-  bodies.push(body);
-
-  // Flat class ring (scene-level so it stays camera-facing)
-  if (cls >= 0) {
-    const inner = radius + 0.2, outer = radius + 0.55;
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(inner, outer, 48),
-      new THREE.MeshBasicMaterial({
-        color: CLASS_RING_HEX[cls],
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.8,
-      })
-    );
-    ring.position.set(pos[0], pos[1], -0.3);
-    scene.add(ring);
-    ringMeshes.push(ring);
-  } else {
-    ringMeshes.push(null);
-  }
-}
-
-// Invisible enlarged hit sphere for rocket
-const rocketHitMesh = new THREE.Mesh(
-  new THREE.SphereGeometry(colliderRadii[ROCKET_INDEX] * 2),
-  new THREE.MeshBasicMaterial({ visible: false })
-);
-meshes[ROCKET_INDEX].add(rocketHitMesh);
-
-// Launch direction visualizer: white dashed arrow + angle arc
-// Shaft — white dashed line
-const arrowShaftGeo = new THREE.BufferGeometry().setFromPoints([
-  new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0),
-]);
-const arrowShaft = new THREE.Line(
-  arrowShaftGeo,
-  new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.35, gapSize: 0.2 })
-);
-arrowShaft.visible = false;
-scene.add(arrowShaft);
-
-// Arrowhead — white cone at tip
-const arrowHeadMesh = new THREE.Mesh(
-  new THREE.ConeGeometry(0.25, 0.7, 8),
-  new THREE.MeshBasicMaterial({ color: 0xffffff })
-);
-arrowHeadMesh.visible = false;
-scene.add(arrowHeadMesh);
-
-// Angle arc (bow shape)
-const arcGeo = new THREE.BufferGeometry();
-const arcLine = new THREE.Line(
-  arcGeo,
-  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })
-);
-arcLine.visible = false;
-scene.add(arcLine);
-
-// Horizontal reference line from rocket
-const arcRefGeo = new THREE.BufferGeometry();
-const arcRefLine = new THREE.Line(
-  arcRefGeo,
-  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 })
-);
-arcRefLine.visible = false;
-scene.add(arcRefLine);
-
-const angleLabelEl = document.getElementById('angle-label') as HTMLElement;
-
-const MAX_PULL = 10;
-const FORCE_SCALE = 6.4; // doubled
-
-// --- Initial MLP training on starting positions ---
-function getSamples(): Array<{ x: number; y: number; cls: number }> {
-  const out: Array<{ x: number; y: number; cls: number }> = [];
-  for (let i = 0; i < objectDefs.length; i++) {
-    const cls = pathToClass(objectDefs[i].path);
-    if (cls < 0) continue;
-    const p = bodies[i].translation();
-    out.push({ x: p.x / (DB_WORLD_W * 0.5), y: p.y / (DB_WORLD_H * 0.5), cls });
-  }
-  return out;
-}
-
-{
-  const initSamples = objectDefs
-    .filter(d => pathToClass(d.path) >= 0)
-    .map(d => ({
-      x: d.pos[0] / (DB_WORLD_W * 0.5),
-      y: d.pos[1] / (DB_WORLD_H * 0.5),
-      cls: pathToClass(d.path),
-    }));
-  for (let t = 0; t < 400; t++) mlp.train(initSamples);
-  updateDecisionBoundary();
-}
-
-// --- Drag hint overlay ---
-const dragHintEl = document.getElementById('drag-hint') as HTMLElement;
-let dragHintActive = true;
-
-document.getElementById('about-btn')!.addEventListener('click', (e) => {
-  e.preventDefault();
-  document.getElementById('about')!.scrollIntoView({ behavior: 'smooth' });
-});
-document.getElementById('scroll-hint')!.addEventListener('click', () => {
-  document.getElementById('about')!.scrollIntoView({ behavior: 'smooth' });
-});
-
-function worldToScreen(wx: number, wy: number): { x: number; y: number } {
-  const v = new THREE.Vector3(wx, wy, 0).project(camera);
-  return {
-    x: (v.x + 1) * 0.5 * window.innerWidth,
-    y: (-v.y + 1) * 0.5 * window.innerHeight,
-  };
-}
-
-function positionDragHint() {
-  if (!dragHintActive) return;
-  const bp = bodies[ROCKET_INDEX].translation();
-  const r = colliderRadii[ROCKET_INDEX];
-  const screen = worldToScreen(bp.x, bp.y + r + 0.5);
-  dragHintEl.style.left = `${screen.x}px`;
-  dragHintEl.style.top  = `${screen.y}px`;
-}
-
-function hideDragHint() {
-  if (!dragHintActive) return;
-  dragHintActive = false;
-  dragHintEl.style.opacity = '0';
-  setTimeout(() => { dragHintEl.style.display = 'none'; }, 500);
-}
-
-// Initial position
-positionDragHint();
-
-// --- Drag (mouse + touch) ---
-let draggedIndex = -1;
-let mouseNX = 0, mouseNY = 0;
-const raycaster = new THREE.Raycaster();
-const currMouseWorld = new THREE.Vector3();
-const dragOrigin = new THREE.Vector3(); // rocket world pos when drag starts
-let rocketAngle = 0;
-
-function lerpAngle(current: number, target: number, t: number): number {
-  let diff = target - current;
-  while (diff > Math.PI) diff -= Math.PI * 2;
-  while (diff < -Math.PI) diff += Math.PI * 2;
-  return current + diff * t;
-}
-
-function toNDC(clientX: number, clientY: number) {
-  return {
-    nx: (clientX / window.innerWidth) * 2 - 1,
-    ny: -(clientY / window.innerHeight) * 2 + 1,
-  };
-}
-
-function tryStartDrag(clientX: number, clientY: number) {
-  const { nx, ny } = toNDC(clientX, clientY);
-  mouseNX = nx; mouseNY = ny;
-  raycaster.setFromCamera(new THREE.Vector2(nx, ny), camera);
-  if (raycaster.intersectObject(rocketHitMesh, false).length > 0) {
-    draggedIndex = ROCKET_INDEX;
-    const rp = bodies[ROCKET_INDEX].translation();
-    dragOrigin.set(rp.x, rp.y, 0);
-    currMouseWorld.copy(dragOrigin);
-    bodies[ROCKET_INDEX].setLinvel({ x: 0, y: 0, z: 0 }, true);
-    bodies[ROCKET_INDEX].setAngvel({ x: 0, y: 0, z: 0 }, true);
-    // Temporarily hide hint while aiming — restore if user releases without launching
-    if (dragHintActive) dragHintEl.style.opacity = '0';
-  }
-}
-
-function updatePointer(clientX: number, clientY: number) {
-  const { nx, ny } = toNDC(clientX, clientY);
-  currMouseWorld.copy(mouseToWorld(nx, ny));
-  mouseNX = nx; mouseNY = ny;
-}
-
-function endDrag() {
-  if (draggedIndex === ROCKET_INDEX) {
-    const rp = bodies[ROCKET_INDEX].translation();
-    const pullVec = new THREE.Vector3(
-      currMouseWorld.x - rp.x,
-      currMouseWorld.y - rp.y,
-      0
-    );
-    const len = Math.min(pullVec.length(), MAX_PULL);
-    if (len > 0.2) {
-      const vel = pullVec.clone().normalize().multiplyScalar(len * FORCE_SCALE);
-      bodies[ROCKET_INDEX].setLinvel({ x: vel.x, y: vel.y, z: 0 }, true);
-      hideDragHint(); // first real launch — permanently hide
-    } else {
-      // Released without launching — restore hint
-      if (dragHintActive) dragHintEl.style.opacity = '1';
-    }
-    arrowShaft.visible = false;
-    arrowHeadMesh.visible = false;
-    arcLine.visible = false;
-    arcRefLine.visible = false;
-    angleLabelEl.style.display = 'none';
-    draggedIndex = -1;
-  }
-}
-
-canvas.addEventListener('mousedown', (e) => tryStartDrag(e.clientX, e.clientY));
-window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
-window.addEventListener('mouseup', endDrag);
-
-canvas.addEventListener('touchstart', (e) => {
-  tryStartDrag(e.touches[0].clientX, e.touches[0].clientY);
-  if (draggedIndex !== -1) e.preventDefault();
-}, { passive: false });
-canvas.addEventListener('touchmove', (e) => {
-  if (draggedIndex !== -1) {
-    e.preventDefault();
-    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
-  }
-}, { passive: false });
-canvas.addEventListener('touchend', (e) => {
-  if (draggedIndex !== -1) {
-    e.preventDefault();
-    endDrag();
-  }
-}, { passive: false });
-
-let lastPinchDist = 0;
-canvas.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    lastPinchDist = Math.sqrt(dx * dx + dy * dy);
-  }
-}, { passive: false });
-canvas.addEventListener('touchmove', (e) => {
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    camera.position.z = Math.max(10, Math.min(55, camera.position.z - (dist - lastPinchDist) * 0.05));
-    lastPinchDist = dist;
-  }
-}, { passive: false });
-
-// --- Boundary bounce ---
-function enforceBounds() {
-  const { halfW, halfH } = viewBounds();
-  for (let i = 0; i < bodies.length; i++) {
-    if (i === draggedIndex) continue;
-    const pos = bodies[i].translation();
-    const vel = bodies[i].linvel();
-    const r = colliderRadii[i];
-    let nx = pos.x, ny = pos.y, vx = vel.x, vy = vel.y;
-    let bounced = false;
-    if (pos.x + r > halfW)  { nx = halfW - r;  vx = -Math.abs(vx) * 0.7; bounced = true; }
-    if (pos.x - r < -halfW) { nx = -halfW + r; vx =  Math.abs(vx) * 0.7; bounced = true; }
-    if (pos.y + r > halfH)  { ny = halfH - r;  vy = -Math.abs(vy) * 0.7; bounced = true; }
-    if (pos.y - r < -halfH) { ny = -halfH + r; vy =  Math.abs(vy) * 0.7; bounced = true; }
-    if (bounced) {
-      if (Math.sqrt(vx * vx + vy * vy) > 1.5) spawnStars(nx, ny, 5);
-      bodies[i].setTranslation({ x: nx, y: ny, z: 0 }, true);
-      bodies[i].setLinvel({ x: vx, y: vy, z: 0 }, true);
-    }
-  }
-}
-
-// --- Animation loop ---
-let frameCount = 0;
-function animate() {
-  requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  frameCount++;
-
-  if (draggedIndex === ROCKET_INDEX) {
-    bodies[ROCKET_INDEX].setLinvel({ x: 0, y: 0, z: 0 }, true);
-
-    const rp = bodies[ROCKET_INDEX].translation();
-    const pullVec = new THREE.Vector3(currMouseWorld.x - rp.x, currMouseWorld.y - rp.y, 0);
-    const len = Math.min(pullVec.length(), MAX_PULL);
-
-    if (len > 0.3) {
-      const dir = pullVec.clone().normalize();
-      const launchAngle = Math.atan2(dir.y, dir.x);
-
-      // Dashed arrow shaft
-      const shaftEnd = new THREE.Vector3(rp.x + dir.x * len, rp.y + dir.y * len, 0.5);
-      arrowShaftGeo.setFromPoints([new THREE.Vector3(rp.x, rp.y, 0.5), shaftEnd]);
-      arrowShaft.computeLineDistances();
-      arrowShaft.visible = true;
-
-      // Arrowhead at tip
-      const headScale = Math.min(1.2, 0.3 + len * 0.09);
-      arrowHeadMesh.scale.setScalar(headScale);
-      arrowHeadMesh.position.set(shaftEnd.x, shaftEnd.y, 0.5);
-      arrowHeadMesh.rotation.z = launchAngle - Math.PI / 2;
-      arrowHeadMesh.visible = true;
-
-      // Angle arc from +X axis to launch direction (bow shape)
-      const arcRadius = Math.min(2.8, len * 0.32 + 0.5);
-      const arcPts: THREE.Vector3[] = [];
-      for (let i = 0; i <= 48; i++) {
-        const a = (i / 48) * launchAngle;
-        arcPts.push(new THREE.Vector3(rp.x + Math.cos(a) * arcRadius, rp.y + Math.sin(a) * arcRadius, 0.5));
-      }
-      arcGeo.setFromPoints(arcPts);
-      arcLine.visible = true;
-
-      // Horizontal reference tick
-      arcRefGeo.setFromPoints([
-        new THREE.Vector3(rp.x, rp.y, 0.5),
-        new THREE.Vector3(rp.x + arcRadius, rp.y, 0.5),
-      ]);
-      arcRefLine.visible = true;
-
-      // Angle label at arc midpoint
-      const midA = launchAngle / 2;
-      const labelR = arcRadius + 0.9;
-      const screen = worldToScreen(rp.x + Math.cos(midA) * labelR, rp.y + Math.sin(midA) * labelR);
-      angleLabelEl.style.left = `${screen.x}px`;
-      angleLabelEl.style.top  = `${screen.y}px`;
-      angleLabelEl.textContent = `${Math.round(((launchAngle * 180 / Math.PI) + 360) % 360)}°`;
-      angleLabelEl.style.display = 'block';
-
-      rocketAngle = launchAngle - Math.PI / 2;
-    } else {
-      arrowShaft.visible = false;
-      arrowHeadMesh.visible = false;
-      arcLine.visible = false;
-      arcRefLine.visible = false;
-      angleLabelEl.style.display = 'none';
-    }
-  }
-
-  world.step(eventQueue);
-
-  eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-    if (!started) return;
-    const i1 = handleToIndex.get(handle1);
-    const i2 = handleToIndex.get(handle2);
-    if (i1 === undefined && i2 === undefined) return;
-    let sx = 0, sy = 0, relSpeed = 0;
-    if (i1 !== undefined && i2 !== undefined) {
-      const p1 = bodies[i1].translation(), p2 = bodies[i2].translation();
-      sx = (p1.x + p2.x) / 2; sy = (p1.y + p2.y) / 2;
-      const v1 = bodies[i1].linvel(), v2 = bodies[i2].linvel();
-      relSpeed = Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2);
-    } else {
-      const idx = (i1 ?? i2)!;
-      const p = bodies[idx].translation();
-      sx = p.x; sy = p.y;
-      const v = bodies[idx].linvel();
-      relSpeed = Math.sqrt(v.x ** 2 + v.y ** 2);
-    }
-    if (relSpeed > 1.0) spawnStars(sx, sy, 8);
+  // ── Angle images (angle3 = front view is default) ─────────────────────────
+  const ANGLE_SRCS = [
+    '/images/aggie.png',
+    '/images/aggie_angle1.png',
+    '/images/aggie_angle2.png',
+    '/images/aggie_angle3.png',
+    '/images/aggie_angle4.png',
+  ];
+  const angleImgs = ANGLE_SRCS.map(src => {
+    const i = new Image(); i.src = src; return i;
   });
 
-  enforceBounds();
-  updateParticles(dt);
+  let angleIndex     = 0; // start with aggie.png
+  let isDragging     = false;
+  let dragStartX     = 0;
+  let dragStartAngle = 0;
+  let hasDragged     = false;
 
-  // Train MLP on current planet positions; update texture every 5 frames
-  const samples = getSamples();
-  if (samples.length > 0) {
-    for (let t = 0; t < 6; t++) mlp.train(samples);
-    if (frameCount % 5 === 0) updateDecisionBoundary();
+  function setAngle(idx: number) {
+    const clamped = Math.max(0, Math.min(ANGLE_SRCS.length - 1, idx));
+    if (clamped === angleIndex) return;
+    angleIndex = clamped;
+    const src = angleImgs[angleIndex];
+    if (src.complete && src.naturalWidth > 0) loadPixels(src);
+    else src.addEventListener('load', () => loadPixels(src), { once: true });
+    bgImg.src = ANGLE_SRCS[angleIndex];
+    if (!hasDragged) { hasDragged = true; dragHint.style.opacity = '0'; }
   }
 
-  for (let i = 0; i < meshes.length; i++) {
-    const pos = bodies[i].translation();
-    meshes[i].position.set(pos.x, pos.y, 0);
-    if (i === ROCKET_INDEX) {
-      meshes[i].rotation.z = rocketAngle;
-    } else {
-      meshes[i].rotation.x += rotSpeeds[i].x;
-      meshes[i].rotation.y += rotSpeeds[i].y;
-      meshes[i].rotation.z += rotSpeeds[i].z;
+  // ── Ripple state ──────────────────────────────────────────────────────────
+  let W = 0, H = 0;
+  let ctx: CanvasRenderingContext2D | null = null;
+  let srcPixels = new Uint8ClampedArray(0);
+  let waveA = new Float32Array(0);
+  let waveB = new Float32Array(0);
+  let output: ImageData | null = null;
+  let mx = -1, my = -1, pActive = false;
+  const DAMP = 0.985;
+
+  function initCanvas(src: HTMLImageElement) {
+    const maxW = Math.min(window.innerWidth * 0.9, 900);
+    const maxH = window.innerHeight * 0.82;
+    const ratio = src.naturalWidth / src.naturalHeight;
+    if (maxW / ratio <= maxH) { W = Math.round(maxW); H = Math.round(maxW / ratio); }
+    else                       { H = Math.round(maxH); W = Math.round(maxH * ratio); }
+    canvas.width  = W; canvas.height = H;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx    = canvas.getContext('2d')!;
+    waveA  = new Float32Array(W * H);
+    waveB  = new Float32Array(W * H);
+    output = ctx.createImageData(W, H);
+    loadPixels(src);
+  }
+
+  function loadPixels(src: HTMLImageElement) {
+    if (!ctx || !W || !H) return;
+    const tmp = document.createElement('canvas');
+    tmp.width = W; tmp.height = H;
+    const tCtx = tmp.getContext('2d')!;
+    tCtx.drawImage(src, 0, 0, W, H);
+    srcPixels = tCtx.getImageData(0, 0, W, H).data;
+    output!.data.set(srcPixels);
+    waveA.fill(0); waveB.fill(0);
+  }
+
+  function tick() {
+    if (!ctx || !output || !W) { requestAnimationFrame(tick); return; }
+    if (pActive && mx > 1 && mx < W - 2 && my > 1 && my < H - 2) {
+      const ci = my * W + mx;
+      waveB[ci] = 200;
+      waveB[ci-1] = waveB[ci+1] = waveB[ci-W] = waveB[ci+W] = 100;
     }
-    const ring = ringMeshes[i];
-    if (ring) ring.position.set(pos.x, pos.y, -0.3);
+    for (let y = 1; y < H - 1; y++) {
+      for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x;
+        waveA[i] = (waveB[i-1] + waveB[i+1] + waveB[i-W] + waveB[i+W]) * 0.5 - waveA[i];
+        waveA[i] *= DAMP;
+      }
+    }
+    const dst = output!.data;
+    for (let y = 1; y < H - 1; y++) {
+      for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x;
+        const dx = Math.round((waveA[i-1] - waveA[i+1]) * 0.4);
+        const dy = Math.round((waveA[i-W] - waveA[i+W]) * 0.4);
+        const sx = Math.max(0, Math.min(W - 1, x + dx));
+        const sy = Math.max(0, Math.min(H - 1, y + dy));
+        const si = (sy * W + sx) << 2;
+        const di = i << 2;
+        dst[di]   = srcPixels[si];   dst[di+1] = srcPixels[si+1];
+        dst[di+2] = srcPixels[si+2]; dst[di+3] = srcPixels[si+3];
+      }
+    }
+    ctx.putImageData(output!, 0, 0);
+    [waveA, waveB] = [waveB, waveA];
+    requestAnimationFrame(tick);
   }
 
-  positionDragHint();
-  renderer.render(scene, camera);
-}
+  // ── Canvas interaction ────────────────────────────────────────────────────
+  canvas.addEventListener('mousedown', e => {
+    isDragging     = true;
+    dragStartX     = e.clientX;
+    dragStartAngle = angleIndex;
+    canvas.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
 
-animate();
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mx = Math.floor((e.clientX - r.left) * W / r.width);
+    my = Math.floor((e.clientY - r.top)  * H / r.height);
+    if (isDragging) {
+      const steps = Math.round((e.clientX - dragStartX) / DRAG_PER_STEP);
+      setAngle(dragStartAngle + steps);
+    } else {
+      pActive = true;
+      const now = Date.now();
+      if (now - lastRipplePlay > RIPPLE_THROTTLE) {
+        lastRipplePlay = now;
+        rippleSfx.currentTime = 0;
+        rippleSfx.play().catch(() => {});
+      }
+    }
+  });
 
-window.addEventListener('resize', () => {
-  const hero = document.getElementById('hero')!;
-  const w = hero.clientWidth, h = hero.clientHeight;
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-});
+  canvas.addEventListener('mouseleave', () => {
+    pActive = false;
+    if (isDragging) { isDragging = false; canvas.style.cursor = 'grab'; }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) { isDragging = false; canvas.style.cursor = 'grab'; }
+  });
+
+  // Touch: horizontal drag on canvas = angle, vertical swipe on window = zoom
+  let canvasTouchStartX = 0, canvasTouchStartAngle = 0;
+  let isHorizontalTouch = false;
+
+  canvas.addEventListener('touchstart', e => {
+    canvasTouchStartX     = e.touches[0].clientX;
+    canvasTouchStartAngle = angleIndex;
+    isHorizontalTouch     = false;
+  }, { passive: true });
+
+  canvas.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - canvasTouchStartX;
+    const dy = e.touches[0].clientY - e.touches[0].clientY;
+    if (!isHorizontalTouch && Math.abs(dx) > 12) isHorizontalTouch = true;
+    if (isHorizontalTouch) setAngle(canvasTouchStartAngle + Math.round(dx / DRAG_PER_STEP));
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', () => { isHorizontalTouch = false; }, { passive: true });
+
+  // ── Scroll zoom sequence ──────────────────────────────────────────────────
+  let zoomStep = 0;
+
+  function applyVisuals() {
+    const imgScale = 1 + (Math.min(zoomStep, IMG_SCALE_STEPS) / IMG_SCALE_STEPS) * 0.25;
+    canvas.style.transform = `scale(${imgScale})`;
+
+    const textOpacity = zoomStep < TEXT_FULL_STEP
+      ? 0.15 + (zoomStep / IMG_SCALE_STEPS) * 0.6 : 1.0;
+    titleEl.style.opacity = textOpacity.toString();
+
+    const textScale = 1 + (Math.min(zoomStep, IMG_SCALE_STEPS) / IMG_SCALE_STEPS) * 0.2;
+    titleEl.style.transform = `scale(${textScale})`;
+
+    const mlVisible = zoomStep >= TEXT_FULL_STEP;
+    lineMl.style.maxHeight = mlVisible ? '5rem' : '0';
+    lineMl.style.opacity   = mlVisible ? '1'    : '0';
+
+    // Drag hint: appears at last scroll step, flashes until user drags
+    const showHint = zoomStep >= ZOOM_STEPS && !hasDragged;
+    dragHint.style.opacity = showHint ? '1' : '0';
+    if (showHint) dragHint.classList.add('flashing');
+    else dragHint.classList.remove('flashing');
+
+    // Blurred background matches current angle
+    bgImg.style.opacity = zoomStep >= ZOOM_STEPS ? '1' : '0';
+
+    bgMusic.volume = 0.2 + (Math.min(zoomStep, IMG_SCALE_STEPS) / IMG_SCALE_STEPS) * 0.8;
+  }
+
+  let heroInView = true;
+  let lastStep = 0;
+  const STEP_DELAY = 150;
+
+  function advance(dir: number) {
+    const now = Date.now();
+    if (now - lastStep < STEP_DELAY) return;
+    lastStep = now;
+    if (dir > 0) {
+      if (zoomStep < ZOOM_STEPS) { zoomStep++; applyVisuals(); }
+    } else {
+      if (zoomStep > 0) { zoomStep--; applyVisuals(); }
+    }
+  }
+
+  window.addEventListener('wheel', (e: WheelEvent) => {
+    if (!heroInView) return;
+    if (e.deltaY < 0 && zoomStep === 0) return;
+    e.preventDefault();
+    startAudio();
+    advance(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+
+  let touchY0 = 0;
+  window.addEventListener('touchstart', (e: TouchEvent) => { touchY0 = e.touches[0].clientY; startAudio(); }, { passive: true });
+  window.addEventListener('touchmove',  (e: TouchEvent) => {
+    if (heroInView && zoomStep !== 0) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('touchend', (e: TouchEvent) => {
+    if (!heroInView) return;
+    const dy = touchY0 - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 40) advance(dy > 0 ? 1 : -1);
+  }, { passive: true });
+
+  // ── Start ─────────────────────────────────────────────────────────────────
+  function start() {
+    initCanvas(angleImgs[angleIndex]);
+    bgImg.src = ANGLE_SRCS[angleIndex];
+    applyVisuals();
+    tick();
+  }
+
+  const startImg = angleImgs[angleIndex];
+  if (startImg.complete && startImg.naturalWidth > 0) start();
+  else startImg.addEventListener('load', start, { once: true });
+})();
 </script>

@@ -1,0 +1,789 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+	<nav id="top-nav">
+		<a href="/">Home</a>
+	</nav>
+
+	<section id="hero">
+		<canvas id="canvas"></canvas>
+		<div id="drag-hint">
+			<div class="drag-hint-arrow">↓</div>
+			<div class="drag-hint-text">DRAG TO LAUNCH</div>
+		</div>
+		<div id="angle-label"></div>
+	</section>
+</Layout>
+
+<style>
+	#top-nav {
+		position: fixed;
+		top: 0;
+		right: 0;
+		z-index: 100;
+		padding: 1.2rem 2rem;
+		display: flex;
+		gap: 1.5rem;
+	}
+	#top-nav a {
+		color: rgba(255,255,255,0.7);
+		text-decoration: none;
+		font-size: 1.2rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		transition: color 0.2s;
+	}
+	#top-nav a:hover { color: #fff; }
+
+	#hero {
+		position: relative;
+		width: 100%;
+		height: 100vh;
+		height: 100svh;
+		overflow: hidden;
+	}
+	#canvas {
+		position: absolute;
+		top: 0; left: 0;
+		width: 100%; height: 100%;
+		cursor: grab;
+		z-index: 1;
+	}
+	#canvas:active { cursor: grabbing; }
+	/* --- Angle label --- */
+	#angle-label {
+		position: absolute;
+		transform: translate(-50%, -50%);
+		font-size: 0.8rem;
+		letter-spacing: 0.05em;
+		color: #fff;
+		pointer-events: none;
+		z-index: 20;
+		display: none;
+		font-variant-numeric: tabular-nums;
+		text-shadow: 0 0 6px rgba(255,255,255,0.9), 0 0 14px rgba(255,255,255,0.5);
+	}
+
+	/* --- Drag hint --- */
+	#drag-hint {
+		position: absolute;
+		transform: translate(-50%, -100%);
+		text-align: center;
+		pointer-events: none;
+		z-index: 20;
+		transition: opacity 0.5s ease;
+	}
+	.drag-hint-text {
+		font-size: 0.72rem;
+		letter-spacing: 0.25em;
+		color: #fff;
+		text-transform: uppercase;
+		animation: hint-flash 0.9s ease-in-out infinite;
+	}
+	.drag-hint-arrow {
+		font-size: 1.1rem;
+		color: #16ebeb;
+		animation: hint-flash 0.9s ease-in-out infinite 0.15s;
+		line-height: 1;
+		margin-bottom: 3px;
+	}
+	@keyframes hint-flash {
+		0%, 100% { opacity: 0.15; text-shadow: none; }
+		50% {
+			opacity: 1;
+			text-shadow: 0 0 12px #16ebeb, 0 0 28px #16ebeb, 0 0 50px rgba(22,235,235,0.6);
+		}
+	}
+</style>
+
+<script>
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import RAPIER from '@dimforge/rapier3d-compat';
+
+await RAPIER.init();
+
+// --- Renderer ---
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 28;
+const clock = new THREE.Clock();
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(5, 10, 8);
+scene.add(dirLight);
+const cyanLight = new THREE.PointLight(0x16ebeb, 3, 120);
+cyanLight.position.set(0, 10, 10);
+scene.add(cyanLight);
+
+// --- Physics ---
+const world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+const eventQueue = new RAPIER.EventQueue(true);
+
+function viewBounds() {
+  const fovRad = (camera.fov * Math.PI) / 180;
+  const halfH = Math.tan(fovRad / 2) * camera.position.z;
+  return { halfW: halfH * camera.aspect, halfH };
+}
+
+function mouseToWorld(nx: number, ny: number): THREE.Vector3 {
+  const vec = new THREE.Vector3(nx, ny, 0.5);
+  vec.unproject(camera);
+  const dir = vec.sub(camera.position).normalize();
+  const dist = -camera.position.z / dir.z;
+  return camera.position.clone().add(dir.multiplyScalar(dist));
+}
+
+// --- Star particles ---
+function makeStarShape(): THREE.ShapeGeometry {
+  const shape = new THREE.Shape();
+  const pts = 5, outer = 0.5, inner = 0.2;
+  for (let i = 0; i < pts * 2; i++) {
+    const angle = (i * Math.PI) / pts - Math.PI / 2;
+    const r = i % 2 === 0 ? outer : inner;
+    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
+    i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return new THREE.ShapeGeometry(shape);
+}
+const starGeo = makeStarShape();
+interface Particle { mesh: THREE.Mesh; vel: THREE.Vector3; life: number; spin: number; }
+const particles: Particle[] = [];
+
+function spawnStars(x: number, y: number, count = 8) {
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+    const speed = 3 + Math.random() * 6;
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color().setHSL(0.12 + Math.random() * 0.08, 1, 0.75),
+      transparent: true, opacity: 1,
+    });
+    const mesh = new THREE.Mesh(starGeo, mat);
+    mesh.scale.setScalar(0.175 + Math.random() * 0.25);
+    mesh.position.set(x, y, 0.2);
+    mesh.rotation.z = Math.random() * Math.PI * 2;
+    scene.add(mesh);
+    particles.push({
+      mesh,
+      vel: new THREE.Vector3(Math.cos(angle) * speed, Math.sin(angle) * speed, 0),
+      life: 1,
+      spin: (Math.random() - 0.5) * 8,
+    });
+  }
+}
+
+function updateParticles(dt: number) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt * 2.5;
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      (p.mesh.material as THREE.Material).dispose();
+      particles.splice(i, 1);
+      continue;
+    }
+    p.mesh.position.x += p.vel.x * dt;
+    p.mesh.position.y += p.vel.y * dt;
+    p.vel.multiplyScalar(0.93);
+    p.mesh.rotation.z += p.spin * dt;
+    (p.mesh.material as THREE.MeshBasicMaterial).opacity = p.life;
+  }
+}
+
+// --- MLP: 2 → 16 (tanh) → 2 (softmax), binary classification, SGD backprop ---
+class MLP {
+  W1: number[][];
+  b1: number[];
+  W2: number[][];
+  b2: number[];
+
+  constructor() {
+    const r = () => (Math.random() - 0.5) * 0.6;
+    this.W1 = Array.from({ length: 16 }, () => [r(), r()]);
+    this.b1 = Array.from({ length: 16 }, () => 0);
+    this.W2 = Array.from({ length: 2 }, () => Array.from({ length: 16 }, r));
+    this.b2 = Array.from({ length: 2 }, () => 0);
+  }
+
+  forward(x: number, y: number): number[] {
+    const h: number[] = new Array(16);
+    for (let j = 0; j < 16; j++) {
+      h[j] = Math.tanh(this.W1[j][0] * x + this.W1[j][1] * y + this.b1[j]);
+    }
+    const logits: number[] = new Array(2);
+    for (let k = 0; k < 2; k++) {
+      let s = this.b2[k];
+      for (let j = 0; j < 16; j++) s += this.W2[k][j] * h[j];
+      logits[k] = s;
+    }
+    const maxL = Math.max(logits[0], logits[1]);
+    let sum = 0;
+    const probs: number[] = new Array(2);
+    for (let k = 0; k < 2; k++) { probs[k] = Math.exp(logits[k] - maxL); sum += probs[k]; }
+    for (let k = 0; k < 2; k++) probs[k] /= sum;
+    return probs;
+  }
+
+  train(samples: Array<{ x: number; y: number; cls: number }>, lr = 0.04) {
+    const h: number[] = new Array(16);
+    const dh: number[] = new Array(16);
+    for (const { x, y, cls } of samples) {
+      for (let j = 0; j < 16; j++) {
+        h[j] = Math.tanh(this.W1[j][0] * x + this.W1[j][1] * y + this.b1[j]);
+      }
+      const logits: number[] = new Array(2);
+      for (let k = 0; k < 2; k++) {
+        let s = this.b2[k];
+        for (let j = 0; j < 16; j++) s += this.W2[k][j] * h[j];
+        logits[k] = s;
+      }
+      const maxL = Math.max(logits[0], logits[1]);
+      let sum = 0;
+      const probs: number[] = new Array(2);
+      for (let k = 0; k < 2; k++) { probs[k] = Math.exp(logits[k] - maxL); sum += probs[k]; }
+      for (let k = 0; k < 2; k++) probs[k] /= sum;
+
+      const dL: number[] = [
+        probs[0] - (cls === 0 ? 1 : 0),
+        probs[1] - (cls === 1 ? 1 : 0),
+      ];
+
+      for (let k = 0; k < 2; k++) {
+        this.b2[k] -= lr * dL[k];
+        for (let j = 0; j < 16; j++) this.W2[k][j] -= lr * dL[k] * h[j];
+      }
+
+      for (let j = 0; j < 16; j++) {
+        let g = 0;
+        for (let k = 0; k < 2; k++) g += this.W2[k][j] * dL[k];
+        dh[j] = g * (1 - h[j] * h[j]);
+      }
+
+      for (let j = 0; j < 16; j++) {
+        this.b1[j] -= lr * dh[j];
+        this.W1[j][0] -= lr * dh[j] * x;
+        this.W1[j][1] -= lr * dh[j] * y;
+      }
+    }
+  }
+}
+
+const mlp = new MLP();
+
+// --- Decision boundary canvas texture (256×256 for crisp boundaries) ---
+const DB_RES = 256;
+const DB_WORLD_W = 60, DB_WORLD_H = 38;
+const dbCanvas = document.createElement('canvas');
+dbCanvas.width = DB_RES; dbCanvas.height = DB_RES;
+const dbCtx = dbCanvas.getContext('2d')!;
+const dbTexture = new THREE.CanvasTexture(dbCanvas);
+
+// Class colors: 0=blue (planet1), 1=white (planet3/earth)
+const CLASS_RGB = [[50, 120, 255], [220, 220, 220]] as const;
+const CLASS_RING_HEX = [0x3278ff, 0xdcdcdc];
+
+function updateDecisionBoundary() {
+  const img = dbCtx.createImageData(DB_RES, DB_RES);
+  const d = img.data;
+  const invX = 2 / (DB_WORLD_W * (DB_RES - 1));
+  const invY = 2 / (DB_WORLD_H * (DB_RES - 1));
+  for (let py = 0; py < DB_RES; py++) {
+    const ny = (0.5 - py / (DB_RES - 1)) * 2;  // [-1, 1]
+    for (let px = 0; px < DB_RES; px++) {
+      const nx = (px / (DB_RES - 1) - 0.5) * 2; // [-1, 1]
+      const probs = mlp.forward(nx, ny);
+      let maxP = probs[0], maxC = 0;
+      if (probs[1] > maxP) { maxP = probs[1]; maxC = 1; }
+      const alpha = Math.pow(Math.max(0, maxP - 0.34) * 1.52, 1.4) * 210;
+      const [r, g, b] = CLASS_RGB[maxC];
+      const idx = (py * DB_RES + px) * 4;
+      d[idx] = r; d[idx + 1] = g; d[idx + 2] = b; d[idx + 3] = alpha;
+    }
+  }
+  dbCtx.putImageData(img, 0, 0);
+  dbTexture.needsUpdate = true;
+}
+
+const bgMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(DB_WORLD_W + 12, DB_WORLD_H + 10),
+  new THREE.MeshBasicMaterial({ map: dbTexture, transparent: true, opacity: 0.45, depthWrite: false })
+);
+bgMesh.position.z = -2;
+scene.add(bgMesh);
+
+// --- Object definitions ---
+interface ObjDef { path: string; diameter: number; pos: [number, number, number]; }
+
+function pathToClass(path: string): number {
+  if (path.includes('rocket'))  return -1;
+  if (path.includes('planet1')) return 0;
+  return 1; // planet3.glb and earth.glb → class 1
+}
+
+const objectDefs: ObjDef[] = [
+  // ── Batch 1 ───────────────────────────────────────────────
+  { path: '/models/earth.glb',       diameter: 6.0,  pos: [  0,   0,  0] },
+  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [-12,   6,  0] },
+  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [  0, -11,  0] },
+  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [-10,  -6,  0] },
+  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [  6,   9,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ -6, -10,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-16,   2,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ 16,   2,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [  5,  13,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [-14,  -9,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-18,   9,  0] },
+  // ── Batch 2 ───────────────────────────────────────────────
+  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [ 21,  10,  0] },
+  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [ -8, -13,  0] },
+  { path: '/models/planet3.glb',     diameter: 3.0,  pos: [-24,  -3,  0] },
+  { path: '/models/planet1.glb',     diameter: 3.0,  pos: [  3,  13,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [ 25,   6,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [ 13, -13,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [ 22, -12,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [-22, -12,  0] },
+  { path: '/models/planet3.glb',     diameter: 1.5,  pos: [-18,  13,  0] },
+  { path: '/models/planet1.glb',     diameter: 1.5,  pos: [  0, -14,  0] },
+  // ── Rocket (draggable, no class) ──────────────────────────
+  { path: '/models/rocket.glb', diameter: 3.75, pos: [  0,   8,  0] },
+];
+
+const ROCKET_INDEX = objectDefs.length - 1;
+
+const meshes: THREE.Group[] = [];
+const bodies: RAPIER.RigidBody[] = [];
+const colliderRadii: number[] = [];
+const handleToIndex = new Map<number, number>();
+const rotSpeeds = objectDefs.map(() => ({
+  x: (Math.random() - 0.5) * 0.008,
+  y: Math.random() * 0.012 + 0.004,
+  z: (Math.random() - 0.5) * 0.005,
+}));
+const ringMeshes: (THREE.Mesh | null)[] = [];
+
+const loader = new GLTFLoader();
+const gltfCache = new Map<string, THREE.Group>();
+async function loadGLTF(path: string): Promise<THREE.Group> {
+  if (!gltfCache.has(path)) {
+    const group: THREE.Group = await new Promise((res, rej) =>
+      loader.load(path, g => res(g.scene), undefined, rej)
+    );
+    gltfCache.set(path, group);
+  }
+  return gltfCache.get(path)!.clone();
+}
+
+for (let i = 0; i < objectDefs.length; i++) {
+  const { path, diameter, pos } = objectDefs[i];
+  const cls = pathToClass(path);
+  const gltf = await loadGLTF(path);
+
+  const box1 = new THREE.Box3().setFromObject(gltf);
+  const sz = new THREE.Vector3();
+  box1.getSize(sz);
+  gltf.scale.setScalar(diameter / Math.max(sz.x, sz.y, sz.z));
+
+  const box2 = new THREE.Box3().setFromObject(gltf);
+  const center = new THREE.Vector3();
+  box2.getCenter(center);
+  gltf.position.sub(center);
+
+  const wrapper = new THREE.Group();
+  wrapper.add(gltf);
+  wrapper.position.set(...pos);
+  scene.add(wrapper);
+  meshes.push(wrapper);
+
+  const radius = diameter / 2;
+  colliderRadii.push(radius);
+
+  const body = world.createRigidBody(
+    RAPIER.RigidBodyDesc.dynamic()
+      .setTranslation(...pos)
+      .setLinearDamping(0.4)
+      .setAngularDamping(0.8)
+      .setGravityScale(0)
+  );
+  const collider = world.createCollider(
+    RAPIER.ColliderDesc.ball(radius)
+      .setDensity(1.0)
+      .setRestitution(0.85)
+      .setFriction(0.2)
+      .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS),
+    body
+  );
+  handleToIndex.set(collider.handle, i);
+  bodies.push(body);
+
+  if (cls >= 0) {
+    const inner = radius + 0.2, outer = radius + 0.55;
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(inner, outer, 48),
+      new THREE.MeshBasicMaterial({
+        color: CLASS_RING_HEX[cls],
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8,
+      })
+    );
+    ring.position.set(pos[0], pos[1], -0.3);
+    scene.add(ring);
+    ringMeshes.push(ring);
+  } else {
+    ringMeshes.push(null);
+  }
+}
+
+// Invisible enlarged hit sphere for rocket
+const rocketHitMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(colliderRadii[ROCKET_INDEX] * 2),
+  new THREE.MeshBasicMaterial({ visible: false })
+);
+meshes[ROCKET_INDEX].add(rocketHitMesh);
+
+// Launch direction visualizer
+const arrowShaftGeo = new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0),
+]);
+const arrowShaft = new THREE.Line(
+  arrowShaftGeo,
+  new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.35, gapSize: 0.2 })
+);
+arrowShaft.visible = false;
+scene.add(arrowShaft);
+
+const arrowHeadMesh = new THREE.Mesh(
+  new THREE.ConeGeometry(0.25, 0.7, 8),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+arrowHeadMesh.visible = false;
+scene.add(arrowHeadMesh);
+
+const arcGeo = new THREE.BufferGeometry();
+const arcLine = new THREE.Line(
+  arcGeo,
+  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })
+);
+arcLine.visible = false;
+scene.add(arcLine);
+
+const arcRefGeo = new THREE.BufferGeometry();
+const arcRefLine = new THREE.Line(
+  arcRefGeo,
+  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 })
+);
+arcRefLine.visible = false;
+scene.add(arcRefLine);
+
+const angleLabelEl = document.getElementById('angle-label') as HTMLElement;
+
+const MAX_PULL = 10;
+const FORCE_SCALE = 6.4;
+
+// --- Initial MLP training on starting positions ---
+function getSamples(): Array<{ x: number; y: number; cls: number }> {
+  const out: Array<{ x: number; y: number; cls: number }> = [];
+  for (let i = 0; i < objectDefs.length; i++) {
+    const cls = pathToClass(objectDefs[i].path);
+    if (cls < 0) continue;
+    const p = bodies[i].translation();
+    out.push({ x: p.x / (DB_WORLD_W * 0.5), y: p.y / (DB_WORLD_H * 0.5), cls });
+  }
+  return out;
+}
+
+{
+  const initSamples = objectDefs
+    .filter(d => pathToClass(d.path) >= 0)
+    .map(d => ({
+      x: d.pos[0] / (DB_WORLD_W * 0.5),
+      y: d.pos[1] / (DB_WORLD_H * 0.5),
+      cls: pathToClass(d.path),
+    }));
+  for (let t = 0; t < 400; t++) mlp.train(initSamples);
+  updateDecisionBoundary();
+}
+
+// --- Drag hint overlay ---
+const dragHintEl = document.getElementById('drag-hint') as HTMLElement;
+let dragHintActive = true;
+
+function worldToScreen(wx: number, wy: number): { x: number; y: number } {
+  const v = new THREE.Vector3(wx, wy, 0).project(camera);
+  return {
+    x: (v.x + 1) * 0.5 * window.innerWidth,
+    y: (-v.y + 1) * 0.5 * window.innerHeight,
+  };
+}
+
+function positionDragHint() {
+  if (!dragHintActive) return;
+  const bp = bodies[ROCKET_INDEX].translation();
+  const r = colliderRadii[ROCKET_INDEX];
+  const screen = worldToScreen(bp.x, bp.y + r + 0.5);
+  dragHintEl.style.left = `${screen.x}px`;
+  dragHintEl.style.top  = `${screen.y}px`;
+}
+
+function hideDragHint() {
+  if (!dragHintActive) return;
+  dragHintActive = false;
+  dragHintEl.style.opacity = '0';
+  setTimeout(() => { dragHintEl.style.display = 'none'; }, 500);
+}
+
+positionDragHint();
+
+// --- Drag (mouse + touch) ---
+let draggedIndex = -1;
+let mouseNX = 0, mouseNY = 0;
+const raycaster = new THREE.Raycaster();
+const currMouseWorld = new THREE.Vector3();
+const dragOrigin = new THREE.Vector3();
+let rocketAngle = 0;
+
+function toNDC(clientX: number, clientY: number) {
+  return {
+    nx: (clientX / window.innerWidth) * 2 - 1,
+    ny: -(clientY / window.innerHeight) * 2 + 1,
+  };
+}
+
+function tryStartDrag(clientX: number, clientY: number) {
+  const { nx, ny } = toNDC(clientX, clientY);
+  mouseNX = nx; mouseNY = ny;
+  raycaster.setFromCamera(new THREE.Vector2(nx, ny), camera);
+  if (raycaster.intersectObject(rocketHitMesh, false).length > 0) {
+    draggedIndex = ROCKET_INDEX;
+    const rp = bodies[ROCKET_INDEX].translation();
+    dragOrigin.set(rp.x, rp.y, 0);
+    currMouseWorld.copy(dragOrigin);
+    bodies[ROCKET_INDEX].setLinvel({ x: 0, y: 0, z: 0 }, true);
+    bodies[ROCKET_INDEX].setAngvel({ x: 0, y: 0, z: 0 }, true);
+    if (dragHintActive) dragHintEl.style.opacity = '0';
+  }
+}
+
+function updatePointer(clientX: number, clientY: number) {
+  const { nx, ny } = toNDC(clientX, clientY);
+  currMouseWorld.copy(mouseToWorld(nx, ny));
+  mouseNX = nx; mouseNY = ny;
+}
+
+function endDrag() {
+  if (draggedIndex === ROCKET_INDEX) {
+    const rp = bodies[ROCKET_INDEX].translation();
+    const pullVec = new THREE.Vector3(
+      currMouseWorld.x - rp.x,
+      currMouseWorld.y - rp.y,
+      0
+    );
+    const len = Math.min(pullVec.length(), MAX_PULL);
+    if (len > 0.2) {
+      const vel = pullVec.clone().normalize().multiplyScalar(len * FORCE_SCALE);
+      bodies[ROCKET_INDEX].setLinvel({ x: vel.x, y: vel.y, z: 0 }, true);
+      hideDragHint();
+    } else {
+      if (dragHintActive) dragHintEl.style.opacity = '1';
+    }
+    arrowShaft.visible = false;
+    arrowHeadMesh.visible = false;
+    arcLine.visible = false;
+    arcRefLine.visible = false;
+    angleLabelEl.style.display = 'none';
+    draggedIndex = -1;
+  }
+}
+
+canvas.addEventListener('mousedown', (e) => tryStartDrag(e.clientX, e.clientY));
+window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+window.addEventListener('mouseup', endDrag);
+
+canvas.addEventListener('touchstart', (e) => {
+  tryStartDrag(e.touches[0].clientX, e.touches[0].clientY);
+  if (draggedIndex !== -1) e.preventDefault();
+}, { passive: false });
+canvas.addEventListener('touchmove', (e) => {
+  if (draggedIndex !== -1) {
+    e.preventDefault();
+    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+canvas.addEventListener('touchend', (e) => {
+  if (draggedIndex !== -1) {
+    e.preventDefault();
+    endDrag();
+  }
+}, { passive: false });
+
+let lastPinchDist = 0;
+canvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastPinchDist = Math.sqrt(dx * dx + dy * dy);
+  }
+}, { passive: false });
+canvas.addEventListener('touchmove', (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    camera.position.z = Math.max(10, Math.min(55, camera.position.z - (dist - lastPinchDist) * 0.05));
+    lastPinchDist = dist;
+  }
+}, { passive: false });
+
+// --- Boundary bounce ---
+function enforceBounds() {
+  const { halfW, halfH } = viewBounds();
+  for (let i = 0; i < bodies.length; i++) {
+    if (i === draggedIndex) continue;
+    const pos = bodies[i].translation();
+    const vel = bodies[i].linvel();
+    const r = colliderRadii[i];
+    let nx = pos.x, ny = pos.y, vx = vel.x, vy = vel.y;
+    let bounced = false;
+    if (pos.x + r > halfW)  { nx = halfW - r;  vx = -Math.abs(vx) * 0.7; bounced = true; }
+    if (pos.x - r < -halfW) { nx = -halfW + r; vx =  Math.abs(vx) * 0.7; bounced = true; }
+    if (pos.y + r > halfH)  { ny = halfH - r;  vy = -Math.abs(vy) * 0.7; bounced = true; }
+    if (pos.y - r < -halfH) { ny = -halfH + r; vy =  Math.abs(vy) * 0.7; bounced = true; }
+    if (bounced) {
+      if (Math.sqrt(vx * vx + vy * vy) > 1.5) spawnStars(nx, ny, 5);
+      bodies[i].setTranslation({ x: nx, y: ny, z: 0 }, true);
+      bodies[i].setLinvel({ x: vx, y: vy, z: 0 }, true);
+    }
+  }
+}
+
+// --- Animation loop ---
+let frameCount = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  frameCount++;
+
+  if (draggedIndex === ROCKET_INDEX) {
+    bodies[ROCKET_INDEX].setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+    const rp = bodies[ROCKET_INDEX].translation();
+    const pullVec = new THREE.Vector3(currMouseWorld.x - rp.x, currMouseWorld.y - rp.y, 0);
+    const len = Math.min(pullVec.length(), MAX_PULL);
+
+    if (len > 0.3) {
+      const dir = pullVec.clone().normalize();
+      const launchAngle = Math.atan2(dir.y, dir.x);
+
+      const shaftEnd = new THREE.Vector3(rp.x + dir.x * len, rp.y + dir.y * len, 0.5);
+      arrowShaftGeo.setFromPoints([new THREE.Vector3(rp.x, rp.y, 0.5), shaftEnd]);
+      arrowShaft.computeLineDistances();
+      arrowShaft.visible = true;
+
+      const headScale = Math.min(1.2, 0.3 + len * 0.09);
+      arrowHeadMesh.scale.setScalar(headScale);
+      arrowHeadMesh.position.set(shaftEnd.x, shaftEnd.y, 0.5);
+      arrowHeadMesh.rotation.z = launchAngle - Math.PI / 2;
+      arrowHeadMesh.visible = true;
+
+      const arcRadius = Math.min(2.8, len * 0.32 + 0.5);
+      const arcPts: THREE.Vector3[] = [];
+      for (let i = 0; i <= 48; i++) {
+        const a = (i / 48) * launchAngle;
+        arcPts.push(new THREE.Vector3(rp.x + Math.cos(a) * arcRadius, rp.y + Math.sin(a) * arcRadius, 0.5));
+      }
+      arcGeo.setFromPoints(arcPts);
+      arcLine.visible = true;
+
+      arcRefGeo.setFromPoints([
+        new THREE.Vector3(rp.x, rp.y, 0.5),
+        new THREE.Vector3(rp.x + arcRadius, rp.y, 0.5),
+      ]);
+      arcRefLine.visible = true;
+
+      const midA = launchAngle / 2;
+      const labelR = arcRadius + 0.9;
+      const screen = worldToScreen(rp.x + Math.cos(midA) * labelR, rp.y + Math.sin(midA) * labelR);
+      angleLabelEl.style.left = `${screen.x}px`;
+      angleLabelEl.style.top  = `${screen.y}px`;
+      angleLabelEl.textContent = `${Math.round(((launchAngle * 180 / Math.PI) + 360) % 360)}°`;
+      angleLabelEl.style.display = 'block';
+
+      rocketAngle = launchAngle - Math.PI / 2;
+    } else {
+      arrowShaft.visible = false;
+      arrowHeadMesh.visible = false;
+      arcLine.visible = false;
+      arcRefLine.visible = false;
+      angleLabelEl.style.display = 'none';
+    }
+  }
+
+  world.step(eventQueue);
+
+  eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+    if (!started) return;
+    const i1 = handleToIndex.get(handle1);
+    const i2 = handleToIndex.get(handle2);
+    if (i1 === undefined && i2 === undefined) return;
+    let sx = 0, sy = 0, relSpeed = 0;
+    if (i1 !== undefined && i2 !== undefined) {
+      const p1 = bodies[i1].translation(), p2 = bodies[i2].translation();
+      sx = (p1.x + p2.x) / 2; sy = (p1.y + p2.y) / 2;
+      const v1 = bodies[i1].linvel(), v2 = bodies[i2].linvel();
+      relSpeed = Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2);
+    } else {
+      const idx = (i1 ?? i2)!;
+      const p = bodies[idx].translation();
+      sx = p.x; sy = p.y;
+      const v = bodies[idx].linvel();
+      relSpeed = Math.sqrt(v.x ** 2 + v.y ** 2);
+    }
+    if (relSpeed > 1.0) spawnStars(sx, sy, 8);
+  });
+
+  enforceBounds();
+  updateParticles(dt);
+
+  const samples = getSamples();
+  if (samples.length > 0) {
+    for (let t = 0; t < 6; t++) mlp.train(samples);
+    if (frameCount % 5 === 0) updateDecisionBoundary();
+  }
+
+  for (let i = 0; i < meshes.length; i++) {
+    const pos = bodies[i].translation();
+    meshes[i].position.set(pos.x, pos.y, 0);
+    if (i === ROCKET_INDEX) {
+      meshes[i].rotation.z = rocketAngle;
+    } else {
+      meshes[i].rotation.x += rotSpeeds[i].x;
+      meshes[i].rotation.y += rotSpeeds[i].y;
+      meshes[i].rotation.z += rotSpeeds[i].z;
+    }
+    const ring = ringMeshes[i];
+    if (ring) ring.position.set(pos.x, pos.y, -0.3);
+  }
+
+  positionDragHint();
+  renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+  const hero = document.getElementById('hero')!;
+  const w = hero.clientWidth, h = hero.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+</script>
