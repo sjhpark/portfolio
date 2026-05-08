@@ -1,0 +1,110 @@
+---
+interface Props {
+  current?: 'about' | 'projects' | 'playful';
+}
+const { current } = Astro.props;
+---
+
+<nav id="site-nav">
+  <a href="/?final" class="snav-item" title="Home">
+    <div class="snav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <span class="snav-label">Home</span>
+  </a>
+  <a href="/about" class={`snav-item${current === 'about' ? ' active' : ''}`} title="About">
+    <div class="snav-icon">
+      <img src="/images/icon_about.png" alt="About" />
+    </div>
+    <span class="snav-label">About</span>
+  </a>
+  <a href="/projects" class={`snav-item${current === 'projects' ? ' active' : ''}`} title="Projects">
+    <div class="snav-icon">
+      <img src="/images/icon_project.png" alt="Projects" />
+    </div>
+    <span class="snav-label">Projects</span>
+  </a>
+  <a href="/playful" class={`snav-item${current === 'playful' ? ' active' : ''}`} title="Playful">
+    <div class="snav-icon">
+      <img src="/images/icon_playful.png" alt="Playful" />
+    </div>
+    <span class="snav-label">Playful</span>
+  </a>
+</nav>
+
+<style>
+  #site-nav {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    background: rgba(30, 30, 32, 0.65);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 100px;
+  }
+  .snav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.35rem 1rem;
+    text-decoration: none;
+    border-radius: 80px;
+    transition: background 0.2s;
+  }
+  .snav-item:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .snav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+  }
+  .snav-icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    border-radius: 5px;
+    transition: transform 0.25s ease;
+  }
+  .snav-icon svg {
+    transition: transform 0.25s ease;
+  }
+  .snav-item:hover .snav-icon img,
+  .snav-item:hover .snav-icon svg {
+    transform: translateY(-2px) scale(1.15);
+  }
+  .snav-label {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+  .snav-item:hover .snav-label {
+    color: rgba(255,255,255,1);
+  }
+  .snav-item.active .snav-icon img {
+    filter: brightness(1.4);
+  }
+  .snav-item.active .snav-label {
+    color: rgba(255,255,255,0.9);
+  }
+  @media (max-width: 700px) {
+    .snav-item { padding: 0.3rem 0.65rem; }
+    .snav-label { font-size: 0.48rem; }
+  }
+</style>

@@ -1,14 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SiteNav from '../components/SiteNav.astro';
 ---
 
 <Layout>
-	<nav id="top-nav">
-		<a href="/">Home</a>
-		<a href="/about">About</a>
-		<a href="/projects">Projects</a>
-		<a href="/playful">Playful</a>
-	</nav>
+	<SiteNav current="about" />
 
 	<!-- About / Biography -->
 	<section id="about">
@@ -40,91 +36,9 @@ import Layout from '../layouts/Layout.astro';
 		</div>
 	</section>
 
-	<!-- Selected Projects -->
-	<section id="projects">
-		<h2>Selected Projects</h2>
-		<div class="projects-grid">
 
-			<a href="/projects/rag" class="project-card">
-				<div class="project-img">
-					<img src="/images/rag.png" alt="RAG Chatbot" />
-				</div>
-				<div class="project-info">
-					<h3>Q&amp;A Chatbot via Retrieval Augmented Generation</h3>
-					<p>
-						Built a RAG-based Q&amp;A system to mitigate LLM hallucination. Users upload PDF documents;
-						the pipeline vectorizes them into a grounded database and performs semantic search to retrieve
-						relevant context before generating responses with an LLM.
-					</p>
-					<div class="tags"><span>LLM</span><span>RAG</span><span>Vector DB</span><span>NLP</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/pilot-workload" class="project-card">
-				<div class="project-img">
-					<img src="/images/pilot_workload.png" alt="Pilot Workload Estimation" />
-				</div>
-				<div class="project-info">
-					<h3>Pilot Workload Estimation via Multimodal ML</h3>
-					<p>
-						Multimodal ML model estimating eVTOL pilot stress levels from 7 biometric modalities —
-						heart rate, eye gaze, GSR, brain activity (fNIR), body pose, grip force, and response time.
-						Ground truth collected via NASA Task Load Index (TLX).
-					</p>
-					<div class="tags"><span>Multimodal ML</span><span>Signal Processing</span><span>PyTorch</span><span>eVTOL</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/on-device-ml" class="project-card">
-				<div class="project-img">
-					<img src="/images/on_device_ml.png" alt="On-Device ML" />
-				</div>
-				<div class="project-info">
-					<h3>Large Generative Model On-Device Deployment &amp; Optimization</h3>
-					<p>
-						Compressed a 72M-parameter virtual garment try-on model onto NVIDIA Jetson Nano 4GB via
-						quantization, structured/unstructured pruning, and knowledge distillation.
-						Conducted filter-wise sensitivity analysis to identify key-player filters.
-					</p>
-					<div class="tags"><span>Model Compression</span><span>Pruning</span><span>Knowledge Distillation</span><span>Jetson Nano</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/aircraft-traj-pred" class="project-card">
-				<div class="project-img">
-					<img src="/images/aircraft_traj_pred.png" alt="Motion Prediction in Airports" />
-				</div>
-				<div class="project-info">
-					<h3>Motion Prediction in Airports via Heterogeneous Map Representations</h3>
-					<p>
-						Studied rasterized vs. graph-based airport map representations for aircraft motion forecasting
-						using a transformer-based multi-modal joint prediction model (GPT-2 encoder + GMM header).
-						Trained on 200 days of FAA SWIM trajectory data from KSEA and KEWR airports.
-					</p>
-					<div class="tags"><span>Motion Forecasting</span><span>Transformer</span><span>Graph Neural Net</span><span>Aviation</span></div>
-				</div>
-			</a>
-
-			<a href="/projects/emotion-recog" class="project-card">
-				<div class="project-img">
-					<img src="/images/emotion_recog.png" alt="Facial Emotion Recognition" />
-				</div>
-				<div class="project-info">
-					<h3>Human Facial Emotion Recognition &amp; Classification</h3>
-					<p>
-						Trained a CNN classifier on the AffectNet benchmark (291K images, 8 emotion labels)
-						to recognize facial expressions. Achieved ~70% validation accuracy. Analyzed class
-						imbalance via confusion matrix, precision, recall, and F1 scores.
-					</p>
-					<div class="tags"><span>CNN</span><span>Computer Vision</span><span>AffectNet</span><span>Classification</span></div>
-				</div>
-			</a>
-
-		</div>
-	</section>
-
-	<footer>
-		<p>© 2025 Jong Hoon (Sam) Park &nbsp;·&nbsp;
+<footer>
+		<p>© 2026 Jong Hoon (Sam) Park &nbsp;·&nbsp;
 			<a href="https://github.com/sjhpark" target="_blank">GitHub</a> &nbsp;·&nbsp;
 			<a href="https://www.linkedin.com/in/jonghoon-park" target="_blank">LinkedIn</a>
 		</p>
@@ -132,24 +46,6 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <style>
-	#top-nav {
-		position: fixed;
-		top: 0;
-		right: 0;
-		z-index: 100;
-		padding: 1.2rem 2rem;
-		display: flex;
-		gap: 1.5rem;
-	}
-	#top-nav a {
-		color: rgba(255,255,255,0.7);
-		text-decoration: none;
-		font-size: 1.2rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		transition: color 0.2s;
-	}
-	#top-nav a:hover { color: #fff; }
 
 	/* --- About --- */
 	#about {
@@ -174,10 +70,13 @@ import Layout from '../layouts/Layout.astro';
 		filter: grayscale(20%);
 	}
 	.about-text h2 {
-		font-size: 2rem;
-		font-weight: 300;
-		letter-spacing: 0.08em;
+		font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+		font-size: clamp(2.8rem, 5vw, 3.8rem);
+		font-weight: 400;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 		color: #fff;
+		line-height: 1;
 		margin-bottom: 24px;
 	}
 	.about-text p {
@@ -201,77 +100,6 @@ import Layout from '../layouts/Layout.astro';
 		color: #16ebeb;
 		border-radius: 20px;
 		text-transform: uppercase;
-	}
-
-	/* --- Projects --- */
-	#projects {
-		background: #050505;
-		padding: 80px 8vw;
-		border-top: 1px solid rgba(255,255,255,0.06);
-	}
-	#projects h2 {
-		font-size: 2rem;
-		font-weight: 300;
-		letter-spacing: 0.08em;
-		color: #fff;
-		margin-bottom: 48px;
-		max-width: 1100px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.projects-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-		gap: 28px;
-		max-width: 1100px;
-		margin: 0 auto;
-	}
-	.project-card {
-		background: #0e0e0e;
-		border: 1px solid rgba(255,255,255,0.08);
-		border-radius: 12px;
-		overflow: hidden;
-		transition: border-color 0.3s, transform 0.3s;
-		text-decoration: none;
-		color: inherit;
-		display: block;
-	}
-	.project-card:hover {
-		border-color: rgba(22,235,235,0.4);
-		transform: translateY(-4px);
-	}
-	.project-img {
-		width: 100%;
-		height: 200px;
-		overflow: hidden;
-		background: #111;
-	}
-	.project-img img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-	.project-info { padding: 24px; }
-	.project-info h3 {
-		font-size: 1.05rem;
-		font-weight: 500;
-		color: #fff;
-		margin-bottom: 12px;
-	}
-	.project-info p {
-		font-size: 0.875rem;
-		line-height: 1.7;
-		color: rgba(255,255,255,0.6);
-		margin-bottom: 16px;
-	}
-	.tags { display: flex; flex-wrap: wrap; gap: 8px; }
-	.tags span {
-		font-size: 0.7rem;
-		padding: 4px 10px;
-		background: rgba(22,235,235,0.08);
-		color: #16ebeb;
-		border-radius: 4px;
-		letter-spacing: 0.05em;
 	}
 
 	/* --- Footer --- */

@@ -1,11 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SiteNav from '../components/SiteNav.astro';
 ---
 
 <Layout>
-	<nav id="top-nav">
-		<a href="/">Home</a>
-	</nav>
+	<SiteNav current="playful" />
 
 	<section id="hero">
 		<canvas id="canvas"></canvas>
@@ -18,25 +17,6 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <style>
-	#top-nav {
-		position: fixed;
-		top: 0;
-		right: 0;
-		z-index: 100;
-		padding: 1.2rem 2rem;
-		display: flex;
-		gap: 1.5rem;
-	}
-	#top-nav a {
-		color: rgba(255,255,255,0.7);
-		text-decoration: none;
-		font-size: 1.2rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		transition: color 0.2s;
-	}
-	#top-nav a:hover { color: #fff; }
-
 	#hero {
 		position: relative;
 		width: 100%;
