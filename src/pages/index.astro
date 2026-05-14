@@ -7,7 +7,7 @@ import Layout from '../layouts/Layout.astro';
 		<canvas id="ascii-canvas"></canvas>
 		<img id="bg-img" src="/images/aggie.png" alt="" />
 		<h1 id="hero-title">
-			<span class="title-line">Hi, I'm a</span>
+			<span class="title-line">Hi, I'm</span>
 			<span class="title-line" id="line-ml"><span style="color:#000">Machine Learning</span></span>
 			<span class="title-line">Engineer</span>
 		</h1>
@@ -539,7 +539,7 @@ import Layout from '../layouts/Layout.astro';
           s.className = 'dodge-char';
           s.style.display = 'inline-block';
           s.style.transition = 'transform 0.09s ease-out';
-          s.textContent = ch === ' ' ? ' ' : ch;
+          s.textContent = ch === ' ' ? '\u00A0' : ch;
           el.appendChild(s);
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
